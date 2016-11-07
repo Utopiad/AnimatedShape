@@ -286,7 +286,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
         $( document ).on( 'mouseup', function ( e ) {
             isDragging = false;
-        }, false );
+        } );
     }
 
     function loop( time ) {
@@ -298,11 +298,13 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         var delta = time - loop.lastTime;
         loop.lastTime = time;
 
-        if ( delta > 0 ) {
+        if ( delta > 0 && time <= timeSpan + loop.lastTime ) {
             move( delta );
         }
 
-        dragging();
+        if ( time >= timeSpan ) {
+            dragging();
+        }
 
         requestAnimationFrame( loop );
 
