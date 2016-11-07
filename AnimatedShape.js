@@ -8,7 +8,9 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
     var startVelocity = 0.01;
     var velocity = startVelocity;
-    var endVelocity;
+    var endVelocity, endRotation;
+
+    // console.log( velocity );
 
     var speedUp = Math.abs( startVelocity / timeSpan );
     var fullRotation = 2 * Math.PI;
@@ -36,7 +38,9 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         topL,
         Material,
         AmbienceLights,
-        time;
+        time,
+        amountAway,
+        amountPossible;
 
     function createScene() {
         scene = new THREE.Scene();
@@ -88,6 +92,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
     }
 
     function createLight() {
+
         centralLight = new THREE.SpotLight( 0xFFFFFF );
         centralLight.position.set( 0, 25, 69 );
         centralLight.castShadow = true;
@@ -109,10 +114,6 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         topLLight = topRLight.clone();
         topLLight.position.set( -10, 20, 10 );
 
-        topL = new THREE.PointLight( 0xF8F8F8, 1, 0.45 );
-        topL.position.set( 0, 25, 70 );
-
-        // scene.add( topL );
         scene.add( leftLight );
         scene.add( rightLight );
         scene.add( topRLight );
@@ -180,7 +181,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
         scene.add( mesh );
 
-        console.log( scene );
+        console.log( mesh );
 
         Material = function () {
             this.color = mesh.material.color;
@@ -207,43 +208,35 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
     }
 
     function getAmountAway() {
-        return fullRotation - mesh.rotation.x;
+        return fullRotation - mesh.rotation.y;
     }
 
     function getAmountPossible() {
         return time * velocity;
     }
 
-    function move( delta, time ) {
+    function move( delta ) {
 
-        // console.log( delta );
-
-        if ( velocity < 0 && mesh.rotation.x == 0 ) {
-            console.log( 'premier if' );
+        if ( velocity < 0 && mesh.rotation.y == 0 ) {
             return false;
         }
 
         // Update the roation, modulo 360 degress (2Pi)
-        mesh.rotation.x = ( mesh.rotation.x + delta * velocity ) % fullRotation;
+        mesh.rotation.y = ( mesh.rotation.y + delta * velocity ) % fullRotation;
         time -= delta;
 
-        // console.log( time );
-
         // If we are in the end phase of the animation
-        if ( endVelocity !== undefined ) {
-            console.log( 'second if' );
+        if ( endVelocity ) {
             velocity = endVelocity * ( getAmountAway() / endRotation );
         }
         // If our current velocity will barely get us to our starting position in time
         else if ( getAmountAway() >= getAmountPossible() ) {
-            console.log( 'else if' );
             endVelocity = velocity;
             endRotation = getAmountAway();
         } else {
             // Just scale velocity with the time that is left
-            velocity = speedUp * time;
+            velocity = parseFloat( speedUp * time );
         }
-
     }
 
     function loop( time ) {
@@ -255,7 +248,9 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         var delta = time - loop.lastTime;
         loop.lastTime = time;
 
-        // move( delta, time );
+        if ( delta > 0 ) {
+            move( delta );
+        }
 
         requestAnimationFrame( loop );
 
@@ -270,23 +265,26 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         renderer.render( scene, camera );
     }
 
+    function onWindowResize() {
+        var WIDTH = container.clientWidth;
+        var HEIGHT = container.clientHeight;
+
+        renderer.setSize( WIDTH, HEIGHT );
+        camera.aspect = WIDTH / HEIGHT;
+
+        camera.updateProjectionMatrix();
+    }
+
     return {
         init: function () {
+
             createScene();
             createLight();
             createHelpers();
             createShape();
             loop();
-        },
 
-        onWindowResize: function () {
-            var WIDTH = container.clientWidth;
-            var HEIGHT = container.clientHeight;
-
-            renderer.setSize( WIDTH, HEIGHT );
-            camera.aspect = WIDTH / HEIGHT;
-
-            camera.updateProjectionMatrix();
+            window.addEventListener( 'resize', onWindowResize(), false );
         },
 
         lightController: function () {
