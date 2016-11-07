@@ -22,25 +22,27 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         mesh,
         delta,
         controls,
-        directionalLight,
         directionalLightHelper,
-        centralLight,
         centralLightHelper,
-        leftLight,
         leftLightHelper,
-        rightLight,
         rightLightHelper,
-        topRLight,
         topRLightHelp,
-        topLLight,
         topLLightHelp,
         Light,
-        topL,
         Material,
         AmbienceLights,
+        lightGroup,
+        previousMousePosition,
         time,
         amountAway,
         amountPossible;
+
+    //Handles drag interaction with object
+    var isDragging = false;
+    var previousMousePosition = {
+        x: 0,
+        y: 0
+    };
 
     function createScene() {
         scene = new THREE.Scene();
@@ -57,7 +59,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
             antialias: true
         } );
 
-        controls = new THREE.OrbitControls( camera, renderer.domElement );
+        // controls = new THREE.OrbitControls( camera, renderer.domElement );
 
         renderer.setSize( WIDTH, HEIGHT );
         renderer.shadowMap.enabled = true;
@@ -75,11 +77,11 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         var axis = new THREE.AxisHelper( 50 );
         var grid = new THREE.GridHelper( 100, 10, 'rgb( 0, 0, 255 )', 0xFFFFFF );
 
-        centralLightHelper = new THREE.SpotLightHelper( centralLight, 5 );
-        leftLightHelper = new THREE.PointLightHelper( leftLight, 5 );
-        rightLightHelper = new THREE.PointLightHelper( rightLight, 5 );
-        topRLightHelp = new THREE.PointLightHelper( topRLight, 5 );
-        topLLightHelp = new THREE.PointLightHelper( topLLight, 5 );
+        centralLightHelper = new THREE.SpotLightHelper( lightGroup[ 0 ], 5 );
+        leftLightHelper = new THREE.PointLightHelper( lightGroup[ 1 ], 5 );
+        rightLightHelper = new THREE.PointLightHelper( lightGroup[ 2 ], 5 );
+        topRLightHelp = new THREE.PointLightHelper( lightGroup[ 3 ], 5 );
+        topLLightHelp = new THREE.PointLightHelper( lightGroup[ 4 ], 5 );
 
         scene.add( axis );
         scene.add( grid );
@@ -92,60 +94,61 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
     }
 
     function createLight() {
+        lightGroup = [];
 
-        centralLight = new THREE.SpotLight( 0xFFFFFF );
-        centralLight.position.set( 0, 25, 69 );
-        centralLight.castShadow = true;
-        centralLight.angle = .2;
-        centralLight.intensity = 0.58;
-        centralLight.lookAt( scene );
+        lightGroup[ 0 ] = new THREE.SpotLight( 0xFFFFFF );
+        lightGroup[ 0 ].position.set( 0, 25, 69 );
+        lightGroup[ 0 ].castShadow = true;
+        lightGroup[ 0 ].angle = .2;
+        lightGroup[ 0 ].intensity = 0.58;
+        lightGroup[ 0 ].lookAt( scene );
 
-        scene.add( centralLight );
+        scene.add( lightGroup[ 0 ] );
 
-        leftLight = new THREE.AmbientLight( 0xFFFFFF, .19 );
-        leftLight.position.set( -20, 0, 20 );
+        lightGroup[ 1 ] = new THREE.AmbientLight( 0xFFFFFF, .19 );
+        lightGroup[ 1 ].position.set( -20, 0, 20 );
 
-        rightLight = leftLight.clone();
-        rightLight.position.set( 20, 0, 20 );
+        lightGroup[ 2 ] = lightGroup[ 1 ].clone();
+        lightGroup[ 2 ].position.set( 20, 0, 20 );
 
-        topRLight = new THREE.AmbientLight( 0xFFFFFF, .03 );
-        topRLight.position.set( 10, 20, 10 );
+        lightGroup[ 3 ] = new THREE.AmbientLight( 0xFFFFFF, .03 );
+        lightGroup[ 3 ].position.set( 10, 20, 10 );
 
-        topLLight = topRLight.clone();
-        topLLight.position.set( -10, 20, 10 );
+        lightGroup[ 4 ] = lightGroup[ 3 ].clone();
+        lightGroup[ 4 ].position.set( -10, 20, 10 );
 
-        scene.add( leftLight );
-        scene.add( rightLight );
-        scene.add( topRLight );
-        scene.add( topLLight );
+        scene.add( lightGroup[ 1 ] );
+        scene.add( lightGroup[ 2 ] );
+        scene.add( lightGroup[ 3 ] );
+        scene.add( lightGroup[ 4 ] );
 
         Light = function () {
-            this.color = centralLight.color;
-            this.positionX = centralLight.position.x;
-            this.positionY = centralLight.position.y;
-            this.positionZ = centralLight.position.z;
-            this.castShadow = centralLight.castShadow;
-            this.intensity = centralLight.intensity;
-            this.distance = centralLight.distance;
-            this.angle = centralLight.angle;
-            this.penumbra = centralLight.penumbra || 0;
-            this.decay = centralLight.decay || 0;
+            this.color = lightGroup[ 0 ].color;
+            this.positionX = lightGroup[ 0 ].position.x;
+            this.positionY = lightGroup[ 0 ].position.y;
+            this.positionZ = lightGroup[ 0 ].position.z;
+            this.castShadow = lightGroup[ 0 ].castShadow;
+            this.intensity = lightGroup[ 0 ].intensity;
+            this.distance = lightGroup[ 0 ].distance;
+            this.angle = lightGroup[ 0 ].angle;
+            this.penumbra = lightGroup[ 0 ].penumbra || 0;
+            this.decay = lightGroup[ 0 ].decay || 0;
         }
 
         AmbienceLights = function () {
-            this.positionXLeft = topLLight.position.x;
-            this.positionYLeft = topLLight.position.y;
-            this.positionZLeft = topLLight.position.z;
+            this.positionXLeft = lightGroup[ 4 ].position.x;
+            this.positionYLeft = lightGroup[ 4 ].position.y;
+            this.positionZLeft = lightGroup[ 4 ].position.z;
 
-            this.positionXRight = topRLight.position.x
-            this.positionYRight = topRLight.position.y;
-            this.positionZRight = topRLight.position.z;
-            // this.intensityRight = topRLight.intensity;
+            this.positionXRight = lightGroup[ 3 ].position.x
+            this.positionYRight = lightGroup[ 3 ].position.y;
+            this.positionZRight = lightGroup[ 3 ].position.z;
+            // this.intensityRight = lightGroup[3].intensity;
 
-            this.TopLeft = topLLight.intensity;
-            this.TopRight = topRLight.intensity;
-            this.BottomLeft = leftLight.intensity;
-            this.BottomRight = rightLight.intensity;
+            this.TopLeft = lightGroup[ 4 ].intensity;
+            this.TopRight = lightGroup[ 3 ].intensity;
+            this.BottomLeft = lightGroup[ 1 ].intensity;
+            this.BottomRight = lightGroup[ 2 ].intensity;
         }
 
         return {
@@ -215,9 +218,17 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         return time * velocity;
     }
 
+    function toRadians( angle ) {
+        return angle * ( Math.PI / 180 );
+    }
+
+    function toDegrees( angle ) {
+        return angle * ( 180 / Math.PI );
+    }
+
     function move( delta ) {
 
-        if ( velocity < 0 && mesh.rotation.y == 0 ) {
+        if ( velocity < 0 && mesh.rotation.y == 0 || time == 0 ) {
             return false;
         }
 
@@ -239,6 +250,45 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         }
     }
 
+    function dragging() {
+        $( renderer.domElement ).on( 'mousedown', function ( e ) {
+
+            isDragging = true;
+            // mesh.rotation.y += 0;
+            // mesh.rotation.z += 0;
+
+        } ).on( 'mousemove', function ( e ) {
+
+            var deltaMove = {
+                x: e.offsetX - previousMousePosition.x,
+                y: e.offsetY - previousMousePosition.y
+            };
+
+            if ( isDragging ) {
+
+                var deltaRotationQuaternion = new THREE.Quaternion()
+                    .setFromEuler( new THREE.Euler(
+                        toRadians( deltaMove.y * 1 ),
+                        toRadians( deltaMove.x * 1 ),
+                        0,
+                        'XYZ'
+                    ) );
+
+                mesh.quaternion.multiplyQuaternions( deltaRotationQuaternion, mesh.quaternion );
+            }
+
+            previousMousePosition = {
+                x: e.offsetX,
+                y: e.offsetY
+            };
+
+        } );
+
+        $( document ).on( 'mouseup', function ( e ) {
+            isDragging = false;
+        }, false );
+    }
+
     function loop( time ) {
 
         if ( !loop.lastTime ) {
@@ -252,12 +302,11 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
             move( delta );
         }
 
+        dragging();
+
         requestAnimationFrame( loop );
 
-        // mesh.rotation.x += 0.02;
-        // mesh.rotation.y += 0.01 / 2;
-
-        controls.update();
+        // controls.update();
 
         stats.begin();
         stats.end();
@@ -295,68 +344,68 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
             var MainLight = gui.addFolder( 'SpotLight' );
 
             MainLight.add( light, 'positionX', -100, 100 ).step( 1 ).onChange( function ( val ) {
-                centralLight.position.x = val;
+                lightGroup[ 0 ].position.x = val;
             } );
             MainLight.add( light, 'positionY', -100, 100 ).step( 1 ).onChange( function ( val ) {
-                centralLight.position.y = val;
+                lightGroup[ 0 ].position.y = val;
             } );
             MainLight.add( light, 'positionZ', -100, 100 ).step( 1 ).onChange( function ( val ) {
-                centralLight.position.z = val;
+                lightGroup[ 0 ].position.z = val;
             } );
 
             MainLight.add( light, 'castShadow' ).onChange( function ( val ) {
-                centralLight.castShadow = val;
+                lightGroup[ 0 ].castShadow = val;
             } );
 
             MainLight.add( light, 'intensity', 0, 2 ).step( 0.01 ).onChange( function ( val ) {
-                centralLight.intensity = val;
+                lightGroup[ 0 ].intensity = val;
             } );
 
             MainLight.add( light, 'distance', 0, 200 ).step( 1 ).onChange( function ( val ) {
-                centralLight.distance = val;
+                lightGroup[ 0 ].distance = val;
             } );
 
             MainLight.add( light, 'angle', 0, Math.PI / 2 ).step( 0.01 ).onChange( function ( val ) {
-                centralLight.angle = val;
+                lightGroup[ 0 ].angle = val;
             } );
 
             MainLight.add( light, 'penumbra', 0, 1 ).step( 0.01 ).onChange( function ( val ) {
-                centralLight.penumbra = val;
+                lightGroup[ 0 ].penumbra = val;
             } );
 
             MainLight.add( light, 'decay', 0, 1 ).step( 0.1 ).onChange( function ( val ) {
-                centralLight.decay = val;
+                lightGroup[ 0 ].decay = val;
             } );
 
             var others = new AmbienceLights();
             var OtherLights = gui.addFolder( 'Other Lights' );
 
             // OtherLights.add( others, 'positionXLeft', -100, 100 ).step( 1 ).onChange( function ( val ) {
-            //     topLLight.position.x = val;
+            //     lightGroup[4].position.x = val;
             // } );
             // OtherLights.add( others, 'positionYLeft', -100, 100 ).step( 1 ).onChange( function ( val ) {
-            //     topLLight.position.y = val;
+            //     lightGroup[4].position.y = val;
             // } );
             // OtherLights.add( others, 'positionZLeft', -100, 100 ).step( 1 ).onChange( function ( val ) {
-            //     topLLight.position.z = val;
+            //     lightGroup[4].position.z = val;
             // } );
 
             // OtherLights.add( others, 'positionXRight', -100, 100 ).step( 1 ).onChange( function ( val ) {
-            //     topRLight.position.x = val;
+            //     lightGroup[3].position.x = val;
             // } );
             // OtherLights.add( others, 'positionYRight', -100, 100 ).step( 1 ).onChange( function ( val ) {
-            //     topRLight.position.y = val;
+            //     lightGroup[3].position.y = val;
             // } );
             // OtherLights.add( others, 'positionZRight', -100, 100 ).step( 1 ).onChange( function ( val ) {
-            //     topRLight.position.z = val;
+            //     lightGroup[3].position.z = val;
             // } );
 
             OtherLights.add( others, 'TopLeft', 0, 2 ).step( 0.01 ).onChange( function ( val ) {
-                topLLight.intensity = val;
+                lightGroup[ 4 ].intensity = val;
             } );
 
             OtherLights.add( others, 'TopRight', 0, 2 ).step( 0.01 ).onChange( function ( val ) {
-                topRLight.intensity = val;
+                lightGroup[ 3 ].intensity = val;
             } );
 
             OtherLights.add( others, 'BottomLeft', 0, 2 ).step( 0.01 ).onChange( function ( val ) {
@@ -364,7 +413,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
             } );
 
             OtherLights.add( others, 'BottomRight', 0, 2 ).step( 0.01 ).onChange( function ( val ) {
-                rightLight.intensity = val;
+                lightGroup[ 2 ].intensity = val;
             } )
 
             OtherLights.open();
