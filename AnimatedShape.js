@@ -228,7 +228,11 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
     function move( delta ) {
 
-        if ( velocity < 0 && mesh.rotation.y == 0 || time == 0 ) {
+        if ( typeof delta === 'boolean' ) {
+            return;
+        }
+
+        if ( velocity < 0 && mesh.rotation.y == 0 ) {
             return false;
         }
 
@@ -251,11 +255,12 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
     }
 
     function dragging() {
+
         $( renderer.domElement ).on( 'mousedown', function ( e ) {
 
             isDragging = true;
-            // mesh.rotation.y += 0;
-            // mesh.rotation.z += 0;
+            mesh.rotation.y += 0;
+            mesh.rotation.z += 0;
 
         } ).on( 'mousemove', function ( e ) {
 
@@ -286,6 +291,10 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
         $( document ).on( 'mouseup', function ( e ) {
             isDragging = false;
+
+            //TODO Handle here the rotation after the mesh was dragged
+            // use previousMousePosition and deltaMove to detect directions
+
         } );
     }
 
@@ -297,14 +306,25 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
         var delta = time - loop.lastTime;
         loop.lastTime = time;
+        // console.log( {
+        //     'time:': time,
+        //     'loop.lasTime': loop.lasTime,
+        //     'delta': delta,
+        //     'timeSpan': timeSpan
+        // } );
+        if ( delta > 0 ) {
 
-        if ( delta > 0 && time <= timeSpan + loop.lastTime ) {
-            move( delta );
+            if ( time >= timeSpan + delta * 2 ) {
+                move( false );
+            } else {
+                move( delta );
+            }
         }
 
         if ( time >= timeSpan ) {
             dragging();
         }
+
 
         requestAnimationFrame( loop );
 
