@@ -229,32 +229,48 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
     function move( delta ) {
 
         if ( typeof delta === 'boolean' ) {
-            return;
-        }
-
-        if ( velocity < 0 && mesh.rotation.y == 0 ) {
-            return false;
-        }
-
-        // Update the roation, modulo 360 degress (2Pi)
-        mesh.rotation.y = ( mesh.rotation.y + delta * velocity ) % fullRotation;
-        time -= delta;
-
-        // If we are in the end phase of the animation
-        if ( endVelocity ) {
-            velocity = endVelocity * ( getAmountAway() / endRotation );
-        }
-        // If our current velocity will barely get us to our starting position in time
-        else if ( getAmountAway() >= getAmountPossible() ) {
-            endVelocity = velocity;
-            endRotation = getAmountAway();
+            return velocity;
         } else {
-            // Just scale velocity with the time that is left
-            velocity = parseFloat( speedUp * time );
+
+            if ( velocity < 0 && mesh.rotation.y == 0 ) {
+                return false;
+            }
+
+            // Update the roation, modulo 360 degress (2Pi)
+            mesh.rotation.y = ( mesh.rotation.y + delta * velocity ) % fullRotation;
+            time -= delta;
+
+            // If we are in the end phase of the animation
+            if ( endVelocity ) {
+                velocity = endVelocity * ( getAmountAway() / endRotation );
+            }
+            // If our current velocity will barely get us to our starting position in time
+            else if ( getAmountAway() >= getAmountPossible() ) {
+                endVelocity = velocity;
+                endRotation = getAmountAway();
+            } else {
+                // Just scale velocity with the time that is left
+                velocity = parseFloat( speedUp * time );
+            }
         }
     }
 
-    function dragging() {
+    var realVelocity;
+    var wait = 0;
+
+    function dragging( velocity, delta ) {
+        if ( typeof realVelocity == 'number' ) {
+
+            if ( wait >= delta * 2 ) {
+                mesh.rotation.x = ( mesh.rotation.x + delta * velocity / 4 ) % fullRotation;
+            } else {
+                wait += delta;
+            }
+
+        }
+
+        mesh.rotation.y = ( mesh.rotation.y + delta * velocity / 2 ) % fullRotation;
+        realVelocity = velocity / 2;
 
         $( renderer.domElement ).on( 'mousedown', function ( e ) {
 
@@ -315,16 +331,13 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         if ( delta > 0 ) {
 
             if ( time >= timeSpan + delta * 2 ) {
-                move( false );
+                dragging( move( false ), delta );
+
             } else {
                 move( delta );
+
             }
         }
-
-        if ( time >= timeSpan ) {
-            dragging();
-        }
-
 
         requestAnimationFrame( loop );
 
