@@ -21,7 +21,6 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         mesh,
         delta,
         controls,
-        directionalLightHelper,
         centralLightHelper,
         leftLightHelper,
         rightLightHelper,
@@ -33,14 +32,18 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         lightGroup,
         previousMousePosition,
         time,
-        amountAway,
-        amountPossible,
         background,
-        loader,
         backgroundGeom,
         backgroundMat,
         backgroundMesh,
         theBackground;
+
+    var targetRotationX = 0;
+    var targetRotationY = 0;
+    var targetRotationMouseDownX = 0;
+    var targetRotationMouseDownY = 0;
+    var mouseXOnMouseDown = 0;
+    var mouseYOnMouseDown = 0;
 
     //Handles drag interaction with object
     var isDragging = false;
@@ -64,8 +67,6 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
             antialias: true
         } );
 
-        // controls = new THREE.OrbitControls( camera, renderer.domElement );
-
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( WIDTH, HEIGHT );
         renderer.shadowMap.enabled = true;
@@ -79,11 +80,6 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         renderer.shadowMapDarkness = 0.5;
         renderer.shadowMapWidth = 1024;
         renderer.shadowMapHeight = 1024;
-
-        //Stats div
-        stats = new Stats();
-        stats.showPanel( 0 );
-        document.body.appendChild( stats.dom );
 
         container.appendChild( renderer.domElement );
     }
@@ -116,7 +112,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         lightGroup[ 0 ].position.set( 0, 25, 69 );
         lightGroup[ 0 ].castShadow = true;
         lightGroup[ 0 ].angle = .2;
-        lightGroup[ 0 ].intensity = 0.58;
+        lightGroup[ 0 ].intensity = 0.25;
         lightGroup[ 0 ].lookAt( scene );
 
         scene.add( lightGroup[ 0 ] );
@@ -127,25 +123,25 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
         scene.add( lightGroup[ 1 ] );
 
-        Light = function () {
-            this.color = lightGroup[ 0 ].color;
-            this.positionX = lightGroup[ 0 ].position.x;
-            this.positionY = lightGroup[ 0 ].position.y;
-            this.positionZ = lightGroup[ 0 ].position.z;
-            this.castShadow = lightGroup[ 0 ].castShadow;
-            this.intensity = lightGroup[ 0 ].intensity;
-            this.distance = lightGroup[ 0 ].distance;
-            this.angle = lightGroup[ 0 ].angle;
-            this.penumbra = lightGroup[ 0 ].penumbra || 0;
-            this.decay = lightGroup[ 0 ].decay || 0;
-        }
+        // Light = function () {
+        //     this.color = lightGroup[ 0 ].color;
+        //     this.positionX = lightGroup[ 0 ].position.x;
+        //     this.positionY = lightGroup[ 0 ].position.y;
+        //     this.positionZ = lightGroup[ 0 ].position.z;
+        //     this.castShadow = lightGroup[ 0 ].castShadow;
+        //     this.intensity = lightGroup[ 0 ].intensity;
+        //     this.distance = lightGroup[ 0 ].distance;
+        //     this.angle = lightGroup[ 0 ].angle;
+        //     this.penumbra = lightGroup[ 0 ].penumbra || 0;
+        //     this.decay = lightGroup[ 0 ].decay || 0;
+        // }
 
-        DirectLight = function () {
-            this.positionX = lightGroup[ 1 ].position.x;
-            this.positionY = lightGroup[ 1 ].position.y;
-            this.positionZ = lightGroup[ 1 ].position.z;
-            this.intensity = lightGroup[ 1 ].intensity;
-        }
+        // DirectLight = function () {
+        //     this.positionX = lightGroup[ 1 ].position.x;
+        //     this.positionY = lightGroup[ 1 ].position.y;
+        //     this.positionZ = lightGroup[ 1 ].position.z;
+        //     this.intensity = lightGroup[ 1 ].intensity;
+        // }
 
         return {
             Light,
@@ -172,7 +168,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
         var material = new THREE.MeshPhongMaterial( {
             color: 0xF8F8F8,
-            emissive: 0x090909,
+            emissive: 0x525252,
             shading: THREE.FlatShading,
             shininess: 75
         } );
@@ -204,7 +200,6 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
             this.shininess = mesh.material.shininess;
         };
 
-        console.log( mesh.material.emissive );
 
         theBackground = function () {
             this.positionX = backgroundMesh.position.x;
@@ -287,23 +282,39 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
     function dragging( velocity, delta ) {
 
         if ( typeof realVelocity == 'number' ) {
-
             if ( wait >= delta * 2 ) {
-                mesh.rotation.x = ( mesh.rotation.x + delta * velocity / 4 ) % fullRotation;
+                if ( targetRotationY !== 0 ) {
+                    mesh.rotation.x += ( targetRotationX + mesh.rotation.x ) * 0.05;
+                } else {
+                    mesh.rotation.x = ( mesh.rotation.x + delta * velocity / 4 ) % fullRotation;
+                }
+
             } else {
                 wait += delta;
             }
-
         }
 
-        mesh.rotation.y = ( mesh.rotation.y + delta * velocity / 2 ) % fullRotation;
-        realVelocity = velocity / 2;
+        if ( targetRotationY !== 0 ) {
+            mesh.rotation.y += ( targetRotationY + mesh.rotation.y ) * 0.05;
+        } else {
+            mesh.rotation.y = ( mesh.rotation.y + delta * velocity / 2 ) % fullRotation;
+            realVelocity = velocity / 2;
+        }
 
         $( renderer.domElement ).on( 'mousedown', function ( e ) {
 
             isDragging = true;
             mesh.rotation.y += 0;
             mesh.rotation.z += 0;
+
+            var renderHalfWidth = container.clientWidth / 2;
+            var renderHalfHeight = container.clientHeight / 2;
+
+            mouseXOnMouseDown = e.clientX - renderHalfWidth;
+            mouseYOnMouseDown = e.clientY - renderHalfHeight;
+
+            targetRotationMouseDownX = targetRotationX;
+            targetRotationMouseDownY = targetRotationX;
 
         } ).on( 'mousemove', function ( e ) {
 
@@ -330,15 +341,14 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
                 y: e.offsetY
             };
 
-        } );
+            targetRotationX = targetRotationMouseDownX + deltaMove.x * 0.02;
+            targetRotationY = targetRotationMouseDownY + deltaMove.y * 0.02;
 
-        $( document ).on( 'mouseup', function ( e ) {
+        } ).on( 'mouseup', function ( e ) {
             isDragging = false;
 
-            //TODO Handle here the rotation after the mesh was dragged
-            // use previousMousePosition and deltaMove to detect directions
-
         } );
+
     }
 
     function loop( time ) {
@@ -354,7 +364,6 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
             if ( time >= timeSpan + delta * 2 ) {
                 dragging( move( false ), delta );
-
             } else {
                 move( delta );
 
@@ -362,8 +371,6 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         }
 
         requestAnimationFrame( loop );
-
-        // controls.update();
 
         stats.begin();
         stats.end();
@@ -386,7 +393,6 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
             createScene();
             createLight();
-            // createHelpers();
             createShape();
             loop();
 
