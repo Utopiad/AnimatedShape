@@ -1,6 +1,6 @@
 'use strict';
 
-var AnimatedShape = function ( container, shape, timeSpan, background ) {
+var AnimatedShape = function ( container, shape, timeSpan ) {
 
     container = typeof container == 'string' ? document.getElementById( container ) : console.info( 'An ID container is here required' );
 
@@ -29,7 +29,7 @@ var AnimatedShape = function ( container, shape, timeSpan, background ) {
         topLLightHelp,
         Light,
         Material,
-        AmbienceLights,
+        DirectLight,
         lightGroup,
         previousMousePosition,
         time,
@@ -55,9 +55,9 @@ var AnimatedShape = function ( container, shape, timeSpan, background ) {
         var HEIGHT = container.clientHeight;
         var WIDTH = container.clientWidth;
 
-        camera = new THREE.PerspectiveCamera( 75, WIDTH / HEIGHT, 0.1, 1000 );
+        camera = new THREE.PerspectiveCamera( 75, WIDTH / HEIGHT, 1, 1000 );
         camera.position.z = 50;
-        camera.position.y = 10;
+        camera.position.y = 0;
 
         renderer = new THREE.WebGLRenderer( {
             alpha: true,
@@ -69,6 +69,16 @@ var AnimatedShape = function ( container, shape, timeSpan, background ) {
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( WIDTH, HEIGHT );
         renderer.shadowMap.enabled = true;
+        renderer.shadowMapSoft = true;
+
+        renderer.shadowCameraNear = 3;
+        renderer.shadowCameraFar = camera.far;
+        renderer.shadowCameraFov = 75;
+
+        renderer.shadowMapBias = 0.0039;
+        renderer.shadowMapDarkness = 0.5;
+        renderer.shadowMapWidth = 1024;
+        renderer.shadowMapHeight = 1024;
 
         //Stats div
         stats = new Stats();
@@ -111,22 +121,11 @@ var AnimatedShape = function ( container, shape, timeSpan, background ) {
 
         scene.add( lightGroup[ 0 ] );
 
-        lightGroup[ 1 ] = new THREE.AmbientLight( 0xFFFFFF, .19 );
-        lightGroup[ 1 ].position.set( -20, 0, 20 );
-
-        lightGroup[ 2 ] = lightGroup[ 1 ].clone();
-        lightGroup[ 2 ].position.set( 20, 0, 20 );
-
-        lightGroup[ 3 ] = new THREE.AmbientLight( 0xFFFFFF, .03 );
-        lightGroup[ 3 ].position.set( 10, 20, 10 );
-
-        lightGroup[ 4 ] = lightGroup[ 3 ].clone();
-        lightGroup[ 4 ].position.set( -10, 20, 10 );
+        lightGroup[ 1 ] = new THREE.DirectionalLight( 0xFFFFFF, 0.5 );
+        lightGroup[ 1 ].position.set( camera.position.x, camera.position.y, camera.position.z );
+        lightGroup[ 1 ].castShadow = true;
 
         scene.add( lightGroup[ 1 ] );
-        scene.add( lightGroup[ 2 ] );
-        scene.add( lightGroup[ 3 ] );
-        scene.add( lightGroup[ 4 ] );
 
         Light = function () {
             this.color = lightGroup[ 0 ].color;
@@ -141,53 +140,41 @@ var AnimatedShape = function ( container, shape, timeSpan, background ) {
             this.decay = lightGroup[ 0 ].decay || 0;
         }
 
-        AmbienceLights = function () {
-            this.positionXLeft = lightGroup[ 4 ].position.x;
-            this.positionYLeft = lightGroup[ 4 ].position.y;
-            this.positionZLeft = lightGroup[ 4 ].position.z;
-
-            this.positionXRight = lightGroup[ 3 ].position.x
-            this.positionYRight = lightGroup[ 3 ].position.y;
-            this.positionZRight = lightGroup[ 3 ].position.z;
-            // this.intensityRight = lightGroup[3].intensity;
-
-            this.TopLeft = lightGroup[ 4 ].intensity;
-            this.TopRight = lightGroup[ 3 ].intensity;
-            this.BottomLeft = lightGroup[ 1 ].intensity;
-            this.BottomRight = lightGroup[ 2 ].intensity;
+        DirectLight = function () {
+            this.positionX = lightGroup[ 1 ].position.x;
+            this.positionY = lightGroup[ 1 ].position.y;
+            this.positionZ = lightGroup[ 1 ].position.z;
+            this.intensity = lightGroup[ 1 ].intensity;
         }
 
         return {
             Light,
-            AmbienceLights
+            DirectLight
         };
     }
 
-    function createShape( data ) {
+    function createShape() {
 
         backgroundMat = new THREE.MeshLambertMaterial( {
             color: 0xFFFFFF,
-            emissive: 0x918a8a,
-            shading: THREE.FlatShading,
-            map: THREE.ImageUtils.loadTexture( background )
+            transparent: true,
+            opacity: 0.05
         } );
         backgroundGeom = new THREE.PlaneGeometry( container.clientWidth / 4, container.clientHeight / 4 );
 
         backgroundMesh = new THREE.Mesh( backgroundGeom, backgroundMat );
 
-        // backgroundMesh.material.depthTest = false;
-        // backgroundMesh.material.depthWrite = false;
-
-        backgroundMesh.position.set( 0, 3, -19 );
-        backgroundMesh.rotation.x = -Math.PI / 18;
+        backgroundMesh.position.set( 0, 0, -19 );
+        backgroundMesh.rotation.x = -0.13;
         backgroundMesh.receiveShadow = true;
-
-        // console.log( backgroundMesh );
 
         scene.add( backgroundMesh );
 
-        var material = new THREE.MeshLambertMaterial( {
+        var material = new THREE.MeshPhongMaterial( {
             color: 0xF8F8F8,
+            emissive: 0x090909,
+            shading: THREE.FlatShading,
+            shininess: 75
         } );
 
         switch ( shape ) {
@@ -211,14 +198,13 @@ var AnimatedShape = function ( container, shape, timeSpan, background ) {
 
         scene.add( mesh );
 
-        // console.log( mesh );
-
         Material = function () {
             this.color = mesh.material.color;
             this.emissive = mesh.material.emissive;
-            this.roughness = mesh.material.roughness;
-            this.metalness = mesh.material.metalness;
+            this.shininess = mesh.material.shininess;
         };
+
+        console.log( mesh.material.emissive );
 
         theBackground = function () {
             this.positionX = backgroundMesh.position.x;
@@ -401,7 +387,7 @@ var AnimatedShape = function ( container, shape, timeSpan, background ) {
             createScene();
             createLight();
             // createHelpers();
-            createShape( background );
+            createShape();
             loop();
 
             window.addEventListener( 'resize', onWindowResize(), false );
@@ -448,18 +434,22 @@ var AnimatedShape = function ( container, shape, timeSpan, background ) {
                 lightGroup[ 0 ].decay = val;
             } );
 
-            var others = new AmbienceLights();
+            var others = new DirectLight();
             var OtherLights = gui.addFolder( 'Other Lights' );
 
-            // OtherLights.add( others, 'positionXLeft', -100, 100 ).step( 1 ).onChange( function ( val ) {
-            //     lightGroup[4].position.x = val;
-            // } );
-            // OtherLights.add( others, 'positionYLeft', -100, 100 ).step( 1 ).onChange( function ( val ) {
-            //     lightGroup[4].position.y = val;
-            // } );
-            // OtherLights.add( others, 'positionZLeft', -100, 100 ).step( 1 ).onChange( function ( val ) {
-            //     lightGroup[4].position.z = val;
-            // } );
+            OtherLights.add( others, 'positionX', -100, 100 ).step( 1 ).onChange( function ( val ) {
+                lightGroup[ 1 ].position.x = val;
+            } );
+            OtherLights.add( others, 'positionY', -100, 100 ).step( 1 ).onChange( function ( val ) {
+                lightGroup[ 1 ].position.y = val;
+            } );
+            OtherLights.add( others, 'positionZ', -100, 100 ).step( 1 ).onChange( function ( val ) {
+                lightGroup[ 1 ].position.z = val;
+            } );
+
+            OtherLights.add( others, 'intensity', 0, 1 ).step( .01 ).onChange( function ( val ) {
+                lightGroup[ 1 ].intensity = val;
+            } );
 
             // OtherLights.add( others, 'positionXRight', -100, 100 ).step( 1 ).onChange( function ( val ) {
             //     lightGroup[3].position.x = val;
@@ -471,21 +461,21 @@ var AnimatedShape = function ( container, shape, timeSpan, background ) {
             //     lightGroup[3].position.z = val;
             // } );
 
-            OtherLights.add( others, 'TopLeft', 0, 2 ).step( 0.01 ).onChange( function ( val ) {
-                lightGroup[ 4 ].intensity = val;
-            } );
+            // OtherLights.add( others, 'TopLeft', 0, 2 ).step( 0.01 ).onChange( function ( val ) {
+            //     lightGroup[ 4 ].intensity = val;
+            // } );
 
-            OtherLights.add( others, 'TopRight', 0, 2 ).step( 0.01 ).onChange( function ( val ) {
-                lightGroup[ 3 ].intensity = val;
-            } );
+            // OtherLights.add( others, 'TopRight', 0, 2 ).step( 0.01 ).onChange( function ( val ) {
+            //     lightGroup[ 3 ].intensity = val;
+            // } );
 
-            OtherLights.add( others, 'BottomLeft', 0, 2 ).step( 0.01 ).onChange( function ( val ) {
-                leftLight.intensity = val;
-            } );
+            // OtherLights.add( others, 'BottomLeft', 0, 2 ).step( 0.01 ).onChange( function ( val ) {
+            //     leftLight.intensity = val;
+            // } );
 
-            OtherLights.add( others, 'BottomRight', 0, 2 ).step( 0.01 ).onChange( function ( val ) {
-                lightGroup[ 2 ].intensity = val;
-            } )
+            // OtherLights.add( others, 'BottomRight', 0, 2 ).step( 0.01 ).onChange( function ( val ) {
+            //     lightGroup[ 2 ].intensity = val;
+            // } );
 
             OtherLights.open();
 
@@ -497,13 +487,13 @@ var AnimatedShape = function ( container, shape, timeSpan, background ) {
                 mesh.material.color.set( colorValue );
             } );
 
-            // material.addColor( geometry, 'emissive' ).onChange( function ( colorValue ) {
-            //     mesh.material.emissive.set( colorValue );
-            // } );
+            material.addColor( geometry, 'emissive' ).onChange( function ( colorValue ) {
+                mesh.material.emissive.set( colorValue );
+            } );
 
-            // material.add( geometry, 'roughness', 0, 1.5 ).step( 0.01 ).onChange( function ( val ) {
-            //     mesh.material.roughness = val;
-            // } );
+            material.add( geometry, 'shininess', 0, 100 ).step( 1 ).onChange( function ( val ) {
+                mesh.material.shininess = val;
+            } );
 
             // material.add( geometry, 'metalness', 0, 1.5 ).step( 0.01 ).onChange( function ( val ) {
             //     mesh.material.metalness = val;
@@ -513,13 +503,13 @@ var AnimatedShape = function ( container, shape, timeSpan, background ) {
             var backPos = new theBackground();
             var backgroundFolder = gui.addFolder( 'Background' );
 
-            backgroundFolder.addColor( backPos, 'color' ).onFinishChange( function ( colorValue ) {
-                backgroundMesh.material.color.set( colorValue );
-            } );
+            // backgroundFolder.addColor( backPos, 'color' ).onFinishChange( function ( colorValue ) {
+            //     backgroundMesh.material.color.set( colorValue );
+            // } );
 
-            backgroundFolder.addColor( backPos, 'emissive' ).onFinishChange( function ( colorValue ) {
-                backgroundMesh.material.emissive.set( colorValue );
-            } );
+            // backgroundFolder.addColor( backPos, 'emissive' ).onFinishChange( function ( colorValue ) {
+            //     backgroundMesh.material.emissive.set( colorValue );
+            // } );
 
             // backgroundFolder.addColor( backPos, 'specular' ).onFinishChange( function ( colorValue ) {
             //     backgroundMesh.material.specular.set( colorValue );
