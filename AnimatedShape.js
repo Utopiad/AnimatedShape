@@ -372,9 +372,6 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
         requestAnimationFrame( loop );
 
-        stats.begin();
-        stats.end();
-
         renderer.render( scene, camera );
     }
 
