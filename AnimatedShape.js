@@ -1,16 +1,15 @@
 'use strict';
 
-var AnimatedShape = function ( container, shape, timeSpan ) {
+var AnimatedShape = function ( container, shape, timeSpan, background ) {
 
     container = typeof container == 'string' ? document.getElementById( container ) : console.info( 'An ID container is here required' );
 
     timeSpan = time = parseFloat( timeSpan );
+    background = background;
 
     var startVelocity = 0.01;
     var velocity = startVelocity;
     var endVelocity, endRotation;
-
-    // console.log( velocity );
 
     var speedUp = Math.abs( startVelocity / timeSpan );
     var fullRotation = 2 * Math.PI;
@@ -35,7 +34,13 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         previousMousePosition,
         time,
         amountAway,
-        amountPossible;
+        amountPossible,
+        background,
+        loader,
+        backgroundGeom,
+        backgroundMat,
+        backgroundMesh,
+        theBackground;
 
     //Handles drag interaction with object
     var isDragging = false;
@@ -61,6 +66,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
         // controls = new THREE.OrbitControls( camera, renderer.domElement );
 
+        renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( WIDTH, HEIGHT );
         renderer.shadowMap.enabled = true;
 
@@ -157,7 +163,28 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         };
     }
 
-    function createShape() {
+    function createShape( data ) {
+
+        backgroundMat = new THREE.MeshLambertMaterial( {
+            color: 0xFFFFFF,
+            emissive: 0x918a8a,
+            shading: THREE.FlatShading,
+            map: THREE.ImageUtils.loadTexture( background )
+        } );
+        backgroundGeom = new THREE.PlaneGeometry( container.clientWidth / 4, container.clientHeight / 4 );
+
+        backgroundMesh = new THREE.Mesh( backgroundGeom, backgroundMat );
+
+        // backgroundMesh.material.depthTest = false;
+        // backgroundMesh.material.depthWrite = false;
+
+        backgroundMesh.position.set( 0, 3, -19 );
+        backgroundMesh.rotation.x = -Math.PI / 18;
+        backgroundMesh.receiveShadow = true;
+
+        // console.log( backgroundMesh );
+
+        scene.add( backgroundMesh );
 
         var material = new THREE.MeshLambertMaterial( {
             color: 0xF8F8F8,
@@ -180,11 +207,11 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         mesh = new THREE.Mesh( geometry, material );
 
         mesh.position.y = 0;
-        mesh.castShadow = false;
+        mesh.castShadow = true;
 
         scene.add( mesh );
 
-        console.log( mesh );
+        // console.log( mesh );
 
         Material = function () {
             this.color = mesh.material.color;
@@ -192,6 +219,19 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
             this.roughness = mesh.material.roughness;
             this.metalness = mesh.material.metalness;
         };
+
+        theBackground = function () {
+            this.positionX = backgroundMesh.position.x;
+            this.positionY = backgroundMesh.position.y;
+            this.positionZ = backgroundMesh.position.z;
+
+            this.rotationX = backgroundMesh.rotation.x;
+            this.rotationY = backgroundMesh.rotation.y;
+            this.rotationZ = backgroundMesh.rotation.z;
+            this.color = backgroundMesh.material.color;
+            this.emissive = backgroundMesh.material.emissive;
+            this.shininess = backgroundMesh.material.shininess;
+        }
     }
 
     function getCube() {
@@ -259,6 +299,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
     var wait = 0;
 
     function dragging( velocity, delta ) {
+
         if ( typeof realVelocity == 'number' ) {
 
             if ( wait >= delta * 2 ) {
@@ -322,12 +363,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
         var delta = time - loop.lastTime;
         loop.lastTime = time;
-        // console.log( {
-        //     'time:': time,
-        //     'loop.lasTime': loop.lasTime,
-        //     'delta': delta,
-        //     'timeSpan': timeSpan
-        // } );
+
         if ( delta > 0 ) {
 
             if ( time >= timeSpan + delta * 2 ) {
@@ -364,8 +400,8 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
             createScene();
             createLight();
-            createHelpers();
-            createShape();
+            // createHelpers();
+            createShape( background );
             loop();
 
             window.addEventListener( 'resize', onWindowResize(), false );
@@ -473,7 +509,51 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
             //     mesh.material.metalness = val;
             // } );
 
-            material.open();
+            // material.open();
+            var backPos = new theBackground();
+            var backgroundFolder = gui.addFolder( 'Background' );
+
+            backgroundFolder.addColor( backPos, 'color' ).onFinishChange( function ( colorValue ) {
+                backgroundMesh.material.color.set( colorValue );
+            } );
+
+            backgroundFolder.addColor( backPos, 'emissive' ).onFinishChange( function ( colorValue ) {
+                backgroundMesh.material.emissive.set( colorValue );
+            } );
+
+            // backgroundFolder.addColor( backPos, 'specular' ).onFinishChange( function ( colorValue ) {
+            //     backgroundMesh.material.specular.set( colorValue );
+            // } );
+
+            // backgroundFolder.add( backPos, 'shininess', 0, 100 ).step( 1 ).onChange( function ( val ) {
+            //     backgroundMesh.material.shininess = val;
+            // } );
+
+            backgroundFolder.add( backPos, 'positionX', -250, 0 ).step( 1 ).onChange( function ( val ) {
+                backgroundMesh.position.x = val;
+            } );
+
+            backgroundFolder.add( backPos, 'positionY', -50, 50 ).step( 1 ).onChange( function ( val ) {
+                backgroundMesh.position.y = val;
+            } );
+
+            backgroundFolder.add( backPos, 'positionZ', -250, 10 ).step( 1 ).onChange( function ( val ) {
+                backgroundMesh.position.z = val;
+            } );
+
+            backgroundFolder.add( backPos, 'rotationX', -Math.PI * 2, Math.PI * 2 ).step( .01 ).onChange( function ( val ) {
+                backgroundMesh.rotation.x = val;
+            } );
+
+            backgroundFolder.add( backPos, 'rotationY', -Math.PI * 2, Math.PI * 2 ).step( .01 ).onChange( function ( val ) {
+                backgroundMesh.rotation.y = val;
+            } );
+
+            backgroundFolder.add( backPos, 'rotationZ', -Math.PI * 2, Math.PI * 20 ).step( .01 ).onChange( function ( val ) {
+                backgroundMesh.rotation.z = val;
+            } );
+
+            backgroundFolder.open();
         }
     };
 };
