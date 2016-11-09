@@ -93,7 +93,8 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
         controls = new THREE.OrbitControls( camera, renderer.domElement );
         controls.enableDamping = true;
-        controls.dampingFactor = 0.25;
+        controls.dampingFactor = 0.75;
+        controls.enableZoom = false;
 
         container.appendChild( renderer.domElement );
 
@@ -278,75 +279,6 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         }
     }
 
-
-
-    function dragging( velocity, delta ) {
-
-        // if ( !isDragging ) {
-        //     // console.log( velocity );
-        //     if ( targetRotationY !== 0 ) {
-        //         mesh.rotation.y += ( targetRotationY + mesh.rotation.y ) * 0.05;
-        //     } else {
-        //         mesh.rotation.y = ( mesh.rotation.y + delta * velocity / 2 ) % fullRotation;
-        //         realVelocity = velocity / 2;
-        //     }
-        // }
-
-        // if ( typeof realVelocity == 'number' ) {
-        //     
-        // }
-
-        // console.log(targetRotationX);
-        // console.log(targetRotationY);
-        // console.log("--");
-
-        // $( renderer.domElement ).on( 'mousedown', function ( e ) {
-
-        //     isDragging = true;
-        //     mesh.rotation.y += 0;
-        //     mesh.rotation.z += 0;
-
-        //     var renderHalfWidth = container.clientWidth / 2;
-        //     var renderHalfHeight = container.clientHeight / 2;
-
-        //     mouseXOnMouseDown = e.clientX - renderHalfWidth;
-        //     mouseYOnMouseDown = e.clientY - renderHalfHeight;
-
-        //     targetRotationMouseDownX = targetRotationX;
-        //     targetRotationMouseDownY = targetRotationX;
-
-        // } ).on( 'mousemove', function ( e ) {
-
-        //     var deltaMove = {
-        //         x: ( e.offsetX - previousMousePosition.x ) * dragConst,
-        //         y: ( e.offsetY - previousMousePosition.y ) * dragConst
-        //     };
-
-        //     if ( isDragging ) {
-
-        //         var deltaRotationQuaternion = new THREE.Quaternion()
-        //             .setFromEuler( new THREE.Euler(
-        //                 toRadians( deltaMove.y * 1 ),
-        //                 toRadians( deltaMove.x * 1 ),
-        //                 0,
-        //                 'XYZ'
-        //             ) );
-
-        //         mesh.quaternion.multiplyQuaternions( deltaRotationQuaternion, mesh.quaternion );
-        //     }
-
-        //     
-
-        //     // targetRotationX = targetRotationMouseDownX + deltaMove.x * 0.02;
-        //     targetRotationY = targetRotationMouseDownY + deltaMove.y * 0.02;
-
-        // } ).on( 'mouseup', function ( e ) {
-        //     isDragging = false;
-
-        // } );
-
-    }
-
     var realVelocity;
     var wait = 0;
 
@@ -355,7 +287,6 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         if ( !isDragging ) {
 
             mesh.rotation.y = ( mesh.rotation.y + delta * velocity / 2 ) % fullRotation;
-            // realVelocity = velocity / 2;
 
             if ( wait >= delta * 2 ) {
                 if ( targetRotationX !== 0 ) {
@@ -378,37 +309,37 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         document.addEventListener( 'mouseup', onMouseUp, false );
         document.addEventListener( 'mouseout', onMouseOut, false );
 
-        mouseXOnMouseDown = event.clientX - renderHalfX;
-        targetRotationOnMouseDownX = targetRotationX;
+        // mouseXOnMouseDown = event.clientX - renderHalfX;
+        // targetRotationOnMouseDownX = targetRotationX;
 
-        mouseYOnMouseDown = event.clientY - renderHalfY;
-        targetRotationOnMouseDownY = targetRotationY;
+        // mouseYOnMouseDown = event.clientY - renderHalfY;
+        // targetRotationOnMouseDownY = targetRotationY;
 
-        isDragging = true;
+        // isDragging = true;
     }
 
     function onMouseMove( event ) {
-        mouseX = event.clientX - renderHalfX;
-        mouseY = event.clientY - renderHalfY;
-        targetRotationX = targetRotationOnMouseDownX + ( mouseX - mouseXOnMouseDown ) * 0.02;
-        targetRotationY = targetRotationOnMouseDownY + ( mouseY - mouseYOnMouseDown ) * 0.02;
+        // mouseX = event.clientX - renderHalfX;
+        // mouseY = event.clientY - renderHalfY;
+        // targetRotationX = targetRotationOnMouseDownX + ( mouseX - mouseXOnMouseDown ) * 0.02;
+        // targetRotationY = targetRotationOnMouseDownY + ( mouseY - mouseYOnMouseDown ) * 0.02;
 
-        var deltaMove = {
-            x: ( event.offsetX - previousMousePosition.x ),
-            y: ( event.offsetY - previousMousePosition.y )
-        };
+        // var deltaMove = {
+        //     x: ( event.offsetX - previousMousePosition.x ),
+        //     y: ( event.offsetY - previousMousePosition.y )
+        // };
 
-        if ( isDragging ) {
-            var deltaRotationQuaternion = new THREE.Quaternion()
-                .setFromEuler( new THREE.Euler(
-                    toRadians( deltaMove.y * 1 ),
-                    toRadians( deltaMove.x * 1 ),
-                    0,
-                    'XYZ'
-                ) );
+        // if ( isDragging ) {
+        //     var deltaRotationQuaternion = new THREE.Quaternion()
+        //         .setFromEuler( new THREE.Euler(
+        //             toRadians( deltaMove.y * 1 ),
+        //             toRadians( deltaMove.x * 1 ),
+        //             0,
+        //             'XYZ'
+        //         ) );
 
-            mesh.quaternion.multiplyQuaternions( deltaRotationQuaternion, mesh.quaternion );
-        }
+        //     mesh.quaternion.multiplyQuaternions( deltaRotationQuaternion, mesh.quaternion );
+        // }
 
         previousMousePosition = {
             x: event.offsetX,
