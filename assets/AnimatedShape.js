@@ -44,6 +44,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
     var targetRotationMouseDownY = 0;
     var mouseXOnMouseDown = 0;
     var mouseYOnMouseDown = 0;
+    var dragConst = 0.15;
 
     //Handles drag interaction with object
     var isDragging = false;
@@ -294,6 +295,10 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
             }
         }
 
+        // console.log(targetRotationX);
+        // console.log(targetRotationY);
+        // console.log("--");
+
         if ( targetRotationY !== 0 ) {
             mesh.rotation.y += ( targetRotationY + mesh.rotation.y ) * 0.05;
         } else {
@@ -319,8 +324,8 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         } ).on( 'mousemove', function ( e ) {
 
             var deltaMove = {
-                x: e.offsetX - previousMousePosition.x,
-                y: e.offsetY - previousMousePosition.y
+                x: (e.offsetX - previousMousePosition.x)*dragConst,
+                y: (e.offsetY - previousMousePosition.y)*dragConst
             };
 
             if ( isDragging ) {
@@ -341,7 +346,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
                 y: e.offsetY
             };
 
-            targetRotationX = targetRotationMouseDownX + deltaMove.x * 0.02;
+            // targetRotationX = targetRotationMouseDownX + deltaMove.x * 0.02;
             targetRotationY = targetRotationMouseDownY + deltaMove.y * 0.02;
 
         } ).on( 'mouseup', function ( e ) {
@@ -363,7 +368,8 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         if ( delta > 0 ) {
 
             if ( time >= timeSpan + delta * 2 ) {
-                dragging( move( false ), delta );
+                var _velocity = isDragging ? 0 : move( false );
+                dragging( _velocity, delta );
             } else {
                 move( delta );
 

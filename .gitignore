@@ -1,10 +1,2 @@
-#stats folder
-stats.js-master/
-stats.js-master.zip
-
-tween.js
-
-#mountain
-mountain.jpg
-
+node_modules/
 .DS_Store

@@ -1,0 +1,19 @@
+{
+  "name": "3d1",
+  "version": "1.0.0",
+  "description": "---------------",
+  "main": "AnimatedShape.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "cat assets/three.min.js assets/zepto.min.js assets/AnimatedShape.js assets/script.js > bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/tfarneau2/able2-agenceme-3d.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/tfarneau2/able2-agenceme-3d#readme",
+  "dependencies": {
+  }
+}
