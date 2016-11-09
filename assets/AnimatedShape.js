@@ -285,9 +285,9 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         if ( typeof realVelocity == 'number' ) {
             if ( wait >= delta * 2 ) {
                 if ( targetRotationY !== 0 ) {
-                    mesh.rotation.x += ( targetRotationX + mesh.rotation.x ) * 0.05;
+                    // mesh.rotation.x += ( targetRotationX + mesh.rotation.x ) * 0.05;
                 } else {
-                    mesh.rotation.x = ( mesh.rotation.x + delta * velocity / 4 ) % fullRotation;
+                    // mesh.rotation.x = ( mesh.rotation.x + delta * velocity / 4 ) % fullRotation;
                 }
 
             } else {
