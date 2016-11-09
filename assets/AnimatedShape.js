@@ -36,12 +36,15 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         backgroundGeom,
         backgroundMat,
         backgroundMesh,
-        theBackground;
+        mouseX,
+        mouseY,
+        renderHalfX,
+        renderHalfY;
 
     var targetRotationX = 0;
     var targetRotationY = 0;
-    var targetRotationMouseDownX = 0;
-    var targetRotationMouseDownY = 0;
+    var targetRotationOnMouseDownX = 0;
+    var targetRotationOnMouseDownY = 0;
     var mouseXOnMouseDown = 0;
     var mouseYOnMouseDown = 0;
     var dragConst = 0.15;
@@ -52,6 +55,9 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         x: 0,
         y: 0
     };
+
+    var targets;
+    var tween = new TWEEN.Tween( targets );
 
     function createScene() {
         scene = new THREE.Scene();
@@ -68,6 +74,9 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
             antialias: true
         } );
 
+        renderHalfX = container.clientWidth / 2;
+        renderHalfY = container.clientHeight / 2;
+
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( WIDTH, HEIGHT );
         renderer.shadowMap.enabled = true;
@@ -83,6 +92,11 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         renderer.shadowMapHeight = 1024;
 
         container.appendChild( renderer.domElement );
+
+        var options = {
+            'x': renderer,
+            'y': container
+        };
     }
 
     function createHelpers() {
@@ -200,20 +214,6 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
             this.emissive = mesh.material.emissive;
             this.shininess = mesh.material.shininess;
         };
-
-
-        theBackground = function () {
-            this.positionX = backgroundMesh.position.x;
-            this.positionY = backgroundMesh.position.y;
-            this.positionZ = backgroundMesh.position.z;
-
-            this.rotationX = backgroundMesh.rotation.x;
-            this.rotationY = backgroundMesh.rotation.y;
-            this.rotationZ = backgroundMesh.rotation.z;
-            this.color = backgroundMesh.material.color;
-            this.emissive = backgroundMesh.material.emissive;
-            this.shininess = backgroundMesh.material.shininess;
-        }
     }
 
     function getCube() {
@@ -277,17 +277,90 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         }
     }
 
-    var realVelocity;
-    var wait = 0;
+
 
     function dragging( velocity, delta ) {
 
-        if ( typeof realVelocity == 'number' ) {
+        // if ( !isDragging ) {
+        //     // console.log( velocity );
+        //     if ( targetRotationY !== 0 ) {
+        //         mesh.rotation.y += ( targetRotationY + mesh.rotation.y ) * 0.05;
+        //     } else {
+        //         mesh.rotation.y = ( mesh.rotation.y + delta * velocity / 2 ) % fullRotation;
+        //         realVelocity = velocity / 2;
+        //     }
+        // }
+
+        // if ( typeof realVelocity == 'number' ) {
+        //     
+        // }
+
+        // console.log(targetRotationX);
+        // console.log(targetRotationY);
+        // console.log("--");
+
+        // $( renderer.domElement ).on( 'mousedown', function ( e ) {
+
+        //     isDragging = true;
+        //     mesh.rotation.y += 0;
+        //     mesh.rotation.z += 0;
+
+        //     var renderHalfWidth = container.clientWidth / 2;
+        //     var renderHalfHeight = container.clientHeight / 2;
+
+        //     mouseXOnMouseDown = e.clientX - renderHalfWidth;
+        //     mouseYOnMouseDown = e.clientY - renderHalfHeight;
+
+        //     targetRotationMouseDownX = targetRotationX;
+        //     targetRotationMouseDownY = targetRotationX;
+
+        // } ).on( 'mousemove', function ( e ) {
+
+        //     var deltaMove = {
+        //         x: ( e.offsetX - previousMousePosition.x ) * dragConst,
+        //         y: ( e.offsetY - previousMousePosition.y ) * dragConst
+        //     };
+
+        //     if ( isDragging ) {
+
+        //         var deltaRotationQuaternion = new THREE.Quaternion()
+        //             .setFromEuler( new THREE.Euler(
+        //                 toRadians( deltaMove.y * 1 ),
+        //                 toRadians( deltaMove.x * 1 ),
+        //                 0,
+        //                 'XYZ'
+        //             ) );
+
+        //         mesh.quaternion.multiplyQuaternions( deltaRotationQuaternion, mesh.quaternion );
+        //     }
+
+        //     
+
+        //     // targetRotationX = targetRotationMouseDownX + deltaMove.x * 0.02;
+        //     targetRotationY = targetRotationMouseDownY + deltaMove.y * 0.02;
+
+        // } ).on( 'mouseup', function ( e ) {
+        //     isDragging = false;
+
+        // } );
+
+    }
+
+    var realVelocity;
+    var wait = 0;
+
+    function spinning( velocity, delta ) {
+
+        if ( !isDragging ) {
+
+            mesh.rotation.y = ( mesh.rotation.y + delta * velocity / 2 ) % fullRotation;
+            // realVelocity = velocity / 2;
+
             if ( wait >= delta * 2 ) {
-                if ( targetRotationY !== 0 ) {
-                    // mesh.rotation.x += ( targetRotationX + mesh.rotation.x ) * 0.05;
+                if ( targetRotationX !== 0 ) {
+                    // mesh.rotation.x = ( mesh.rotation.x + delta * targetRotationX / 3 ) * 0.05;
                 } else {
-                    // mesh.rotation.x = ( mesh.rotation.x + delta * velocity / 4 ) % fullRotation;
+                    mesh.rotation.x = ( mesh.rotation.x + delta * velocity / 4 ) % fullRotation;
                 }
 
             } else {
@@ -295,65 +368,111 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
             }
         }
 
-        // console.log(targetRotationX);
-        // console.log(targetRotationY);
-        // console.log("--");
+    }
 
-        if ( targetRotationY !== 0 ) {
-            mesh.rotation.y += ( targetRotationY + mesh.rotation.y ) * 0.05;
-        } else {
-            mesh.rotation.y = ( mesh.rotation.y + delta * velocity / 2 ) % fullRotation;
-            realVelocity = velocity / 2;
+    function onMouseDown( event ) {
+        event.preventDefault();
+
+        document.addEventListener( 'mousemove', onMouseMove, false );
+        document.addEventListener( 'mouseup', onMouseUp, false );
+        document.addEventListener( 'mouseout', onMouseOut, false );
+
+        mouseXOnMouseDown = event.clientX - renderHalfX;
+        targetRotationOnMouseDownX = targetRotationX;
+
+        mouseYOnMouseDown = event.clientY - renderHalfY;
+        targetRotationOnMouseDownY = targetRotationY;
+
+        isDragging = true;
+    }
+
+    function onMouseMove( event ) {
+        mouseX = event.clientX - renderHalfX;
+        mouseY = event.clientY - renderHalfY;
+        targetRotationX = targetRotationOnMouseDownX + ( mouseX - mouseXOnMouseDown ) * 0.02;
+        targetRotationY = targetRotationOnMouseDownY + ( mouseY - mouseYOnMouseDown ) * 0.02;
+
+        var deltaMove = {
+            x: ( event.offsetX - previousMousePosition.x ),
+            y: ( event.offsetY - previousMousePosition.y )
+        };
+
+        if ( isDragging ) {
+            var deltaRotationQuaternion = new THREE.Quaternion()
+                .setFromEuler( new THREE.Euler(
+                    toRadians( deltaMove.y * 1 ),
+                    toRadians( deltaMove.x * 1 ),
+                    0,
+                    'XYZ'
+                ) );
+
+            mesh.quaternion.multiplyQuaternions( deltaRotationQuaternion, mesh.quaternion );
         }
 
-        $( renderer.domElement ).on( 'mousedown', function ( e ) {
+        previousMousePosition = {
+            x: event.offsetX,
+            y: event.offsetY
+        };
 
-            isDragging = true;
-            mesh.rotation.y += 0;
-            mesh.rotation.z += 0;
+        return targets = {
+            targetRotationX,
+            targetRotationY
+        };
+    }
 
-            var renderHalfWidth = container.clientWidth / 2;
-            var renderHalfHeight = container.clientHeight / 2;
+    function onTouchStart( event ) {
+        if ( event.touches.length == 1 ) {
+            event.preventDefault();
 
-            mouseXOnMouseDown = e.clientX - renderHalfWidth;
-            mouseYOnMouseDown = e.clientY - renderHalfHeight;
+            mouseXOnMouseDown = event.touches[ 0 ].pageX - renderHalfX;
+            targetRotationOnMouseDownX = targetRotationX;
 
-            targetRotationMouseDownX = targetRotationX;
-            targetRotationMouseDownY = targetRotationX;
+            mouseYOnMouseDown = event.touches[ 0 ].pageY - renderHalfY;
+            targetRotationOnMouseDownY = targetRotationY;
+        }
+    }
 
-        } ).on( 'mousemove', function ( e ) {
+    function onTouchMove( event ) {
+        if ( event.touches.length == 1 ) {
+            event.preventDefault();
 
-            var deltaMove = {
-                x: (e.offsetX - previousMousePosition.x)*dragConst,
-                y: (e.offsetY - previousMousePosition.y)*dragConst
-            };
+            mouseX = event.touches[ 0 ].pageX - renderHalfX;
+            targetRotationX = targetRotationOnMouseDownX + ( mouseX - mouseXOnMouseDown ) * 0.05;
 
-            if ( isDragging ) {
+            mouseY = event.touches[ 0 ].pageY - renderHalfY;
+            targetRotationY = targetRotationOnMouseDownY + ( mouseY - mouseYOnMouseDown ) * 0.05;
+        }
+    }
 
-                var deltaRotationQuaternion = new THREE.Quaternion()
-                    .setFromEuler( new THREE.Euler(
-                        toRadians( deltaMove.y * 1 ),
-                        toRadians( deltaMove.x * 1 ),
-                        0,
-                        'XYZ'
-                    ) );
+    function onMouseUp( event ) {
 
-                mesh.quaternion.multiplyQuaternions( deltaRotationQuaternion, mesh.quaternion );
-            }
+        targets = {
+            targetRotationX,
+            targetRotationY
+        };
 
-            previousMousePosition = {
-                x: e.offsetX,
-                y: e.offsetY
-            };
+        tween = new TWEEN.Tween( targets );
+        tween.to( {
+            targetRotationX: 0.02,
+            targetRotationY: 0.02
+        }, 2000 );
 
-            // targetRotationX = targetRotationMouseDownX + deltaMove.x * 0.02;
-            targetRotationY = targetRotationMouseDownY + deltaMove.y * 0.02;
+        tween.start();
 
-        } ).on( 'mouseup', function ( e ) {
-            isDragging = false;
+        isDragging = false;
 
-        } );
+        document.removeEventListener( 'mousemove', onMouseMove, false );
+        document.removeEventListener( 'mouseup', onMouseUp, false );
+        document.removeEventListener( 'mouseout', onMouseOut, false );
+    }
 
+
+    function onMouseOut( event ) {
+
+        isDragging = false;
+        document.removeEventListener( 'mousemove', onMouseMove, false );
+        document.removeEventListener( 'mouseup', onMouseUp, false );
+        document.removeEventListener( 'mouseout', onMouseOut, false );
     }
 
     function loop( time ) {
@@ -369,10 +488,18 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
             if ( time >= timeSpan + delta * 2 ) {
                 var _velocity = isDragging ? 0 : move( false );
-                dragging( _velocity, delta );
+                spinning( _velocity, delta );
+
+                if ( !isDragging ) {
+
+                    TWEEN.update();
+                    tween.onUpdate( function () {
+                        mesh.rotation.y += ( targets.targetRotationX - mesh.rotation.y ) * 0.05;
+                    } );
+                }
+
             } else {
                 move( delta );
-
             }
         }
 
@@ -399,7 +526,12 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
             createShape();
             loop();
 
-            window.addEventListener( 'resize', onWindowResize(), false );
+            document.addEventListener( 'resize', onWindowResize, false );
+
+            // Event listeners
+            container.addEventListener( 'mousedown', onMouseDown, false );
+            container.addEventListener( 'touchstart', onTouchStart, false );
+            container.addEventListener( 'touchmove', onTouchMove, false );
         },
 
         lightController: function () {
@@ -509,50 +641,6 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
             // } );
 
             // material.open();
-            var backPos = new theBackground();
-            var backgroundFolder = gui.addFolder( 'Background' );
-
-            // backgroundFolder.addColor( backPos, 'color' ).onFinishChange( function ( colorValue ) {
-            //     backgroundMesh.material.color.set( colorValue );
-            // } );
-
-            // backgroundFolder.addColor( backPos, 'emissive' ).onFinishChange( function ( colorValue ) {
-            //     backgroundMesh.material.emissive.set( colorValue );
-            // } );
-
-            // backgroundFolder.addColor( backPos, 'specular' ).onFinishChange( function ( colorValue ) {
-            //     backgroundMesh.material.specular.set( colorValue );
-            // } );
-
-            // backgroundFolder.add( backPos, 'shininess', 0, 100 ).step( 1 ).onChange( function ( val ) {
-            //     backgroundMesh.material.shininess = val;
-            // } );
-
-            backgroundFolder.add( backPos, 'positionX', -250, 0 ).step( 1 ).onChange( function ( val ) {
-                backgroundMesh.position.x = val;
-            } );
-
-            backgroundFolder.add( backPos, 'positionY', -50, 50 ).step( 1 ).onChange( function ( val ) {
-                backgroundMesh.position.y = val;
-            } );
-
-            backgroundFolder.add( backPos, 'positionZ', -250, 10 ).step( 1 ).onChange( function ( val ) {
-                backgroundMesh.position.z = val;
-            } );
-
-            backgroundFolder.add( backPos, 'rotationX', -Math.PI * 2, Math.PI * 2 ).step( .01 ).onChange( function ( val ) {
-                backgroundMesh.rotation.x = val;
-            } );
-
-            backgroundFolder.add( backPos, 'rotationY', -Math.PI * 2, Math.PI * 2 ).step( .01 ).onChange( function ( val ) {
-                backgroundMesh.rotation.y = val;
-            } );
-
-            backgroundFolder.add( backPos, 'rotationZ', -Math.PI * 2, Math.PI * 20 ).step( .01 ).onChange( function ( val ) {
-                backgroundMesh.rotation.z = val;
-            } );
-
-            backgroundFolder.open();
         }
     };
 };
