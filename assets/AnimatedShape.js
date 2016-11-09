@@ -23,9 +23,6 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         controls,
         centralLightHelper,
         leftLightHelper,
-        rightLightHelper,
-        topRLightHelp,
-        topLLightHelp,
         Light,
         Material,
         DirectLight,
@@ -93,8 +90,11 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
         controls = new THREE.OrbitControls( camera, renderer.domElement );
         controls.enableDamping = true;
-        controls.dampingFactor = 0.75;
+        controls.dampingFactor = .1;
         controls.enableZoom = false;
+        controls.rotateSpeed = 0.4;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.5;
 
         container.appendChild( renderer.domElement );
 
@@ -108,18 +108,12 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
         centralLightHelper = new THREE.SpotLightHelper( lightGroup[ 0 ], 5 );
         leftLightHelper = new THREE.PointLightHelper( lightGroup[ 1 ], 5 );
-        rightLightHelper = new THREE.PointLightHelper( lightGroup[ 2 ], 5 );
-        topRLightHelp = new THREE.PointLightHelper( lightGroup[ 3 ], 5 );
-        topLLightHelp = new THREE.PointLightHelper( lightGroup[ 4 ], 5 );
 
         scene.add( axis );
         scene.add( grid );
 
-        scene.add( centralLightHelper );
-        scene.add( leftLightHelper );
-        scene.add( rightLightHelper );
-        scene.add( topRLightHelp );
-        scene.add( topLLightHelp );
+        // scene.add( centralLightHelper );
+        // scene.add( leftLightHelper );
     }
 
     function createLight() {
@@ -176,12 +170,15 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         backgroundGeom = new THREE.PlaneGeometry( container.clientWidth / 4, container.clientHeight / 4 );
 
         backgroundMesh = new THREE.Mesh( backgroundGeom, backgroundMat );
+        var vec = new THREE.Vector3( 0, 0, -79 );
+        vec.applyQuaternion( camera.quaternion );
 
-        backgroundMesh.position.set( 0, 0, -19 );
-        backgroundMesh.rotation.x = -0.13;
+        backgroundMesh.position.copy( vec );
+        // backgroundMesh.position.set( 0, 0, -19 );
+        backgroundMesh.rotation.x = -0.15;
         backgroundMesh.receiveShadow = true;
 
-        // scene.add( backgroundMesh );
+        camera.add( backgroundMesh );
 
         var material = new THREE.MeshPhongMaterial( {
             color: 0xF8F8F8,
@@ -420,7 +417,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
             if ( time >= timeSpan + delta * 2 ) {
                 var _velocity = isDragging ? 0 : move( false );
-                spinning( _velocity, delta );
+
 
                 // if ( !isDragging ) {
 
@@ -431,7 +428,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
                 // }
 
             } else {
-                move( delta );
+                // move( delta );
             }
         }
 
