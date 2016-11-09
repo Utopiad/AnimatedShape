@@ -315,7 +315,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         // mouseYOnMouseDown = event.clientY - renderHalfY;
         // targetRotationOnMouseDownY = targetRotationY;
 
-        // isDragging = true;
+        isDragging = true;
     }
 
     function onMouseMove( event ) {
