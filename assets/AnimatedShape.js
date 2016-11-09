@@ -91,12 +91,13 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         renderer.shadowMapWidth = 1024;
         renderer.shadowMapHeight = 1024;
 
+        controls = new THREE.OrbitControls( camera, renderer.domElement );
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.25;
+
         container.appendChild( renderer.domElement );
 
-        var options = {
-            'x': renderer,
-            'y': container
-        };
+        scene.add( camera );
     }
 
     function createHelpers() {
@@ -130,33 +131,33 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         lightGroup[ 0 ].intensity = 0.25;
         lightGroup[ 0 ].lookAt( scene );
 
-        scene.add( lightGroup[ 0 ] );
+        camera.add( lightGroup[ 0 ] );
 
         lightGroup[ 1 ] = new THREE.DirectionalLight( 0xFFFFFF, 0.5 );
         lightGroup[ 1 ].position.set( camera.position.x, camera.position.y, camera.position.z );
         lightGroup[ 1 ].castShadow = true;
 
-        scene.add( lightGroup[ 1 ] );
+        camera.add( lightGroup[ 1 ] );
 
-        // Light = function () {
-        //     this.color = lightGroup[ 0 ].color;
-        //     this.positionX = lightGroup[ 0 ].position.x;
-        //     this.positionY = lightGroup[ 0 ].position.y;
-        //     this.positionZ = lightGroup[ 0 ].position.z;
-        //     this.castShadow = lightGroup[ 0 ].castShadow;
-        //     this.intensity = lightGroup[ 0 ].intensity;
-        //     this.distance = lightGroup[ 0 ].distance;
-        //     this.angle = lightGroup[ 0 ].angle;
-        //     this.penumbra = lightGroup[ 0 ].penumbra || 0;
-        //     this.decay = lightGroup[ 0 ].decay || 0;
-        // }
+        Light = function () {
+            this.color = lightGroup[ 0 ].color;
+            this.positionX = lightGroup[ 0 ].position.x;
+            this.positionY = lightGroup[ 0 ].position.y;
+            this.positionZ = lightGroup[ 0 ].position.z;
+            this.castShadow = lightGroup[ 0 ].castShadow;
+            this.intensity = lightGroup[ 0 ].intensity;
+            this.distance = lightGroup[ 0 ].distance;
+            this.angle = lightGroup[ 0 ].angle;
+            this.penumbra = lightGroup[ 0 ].penumbra || 0;
+            this.decay = lightGroup[ 0 ].decay || 0;
+        }
 
-        // DirectLight = function () {
-        //     this.positionX = lightGroup[ 1 ].position.x;
-        //     this.positionY = lightGroup[ 1 ].position.y;
-        //     this.positionZ = lightGroup[ 1 ].position.z;
-        //     this.intensity = lightGroup[ 1 ].intensity;
-        // }
+        DirectLight = function () {
+            this.positionX = lightGroup[ 1 ].position.x;
+            this.positionY = lightGroup[ 1 ].position.y;
+            this.positionZ = lightGroup[ 1 ].position.z;
+            this.intensity = lightGroup[ 1 ].intensity;
+        }
 
         return {
             Light,
@@ -179,7 +180,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         backgroundMesh.rotation.x = -0.13;
         backgroundMesh.receiveShadow = true;
 
-        scene.add( backgroundMesh );
+        // scene.add( backgroundMesh );
 
         var material = new THREE.MeshPhongMaterial( {
             color: 0xF8F8F8,
@@ -446,18 +447,18 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
     function onMouseUp( event ) {
 
-        targets = {
-            targetRotationX,
-            targetRotationY
-        };
+        // targets = {
+        //     targetRotationX,
+        //     targetRotationY
+        // };
 
-        tween = new TWEEN.Tween( targets );
-        tween.to( {
-            targetRotationX: 0.02,
-            targetRotationY: 0.02
-        }, 2000 );
+        // tween = new TWEEN.Tween( targets );
+        // tween.to( {
+        //     targetRotationX: 0.02,
+        //     targetRotationY: 0.02
+        // }, 2000 );
 
-        tween.start();
+        // tween.start();
 
         isDragging = false;
 
@@ -490,13 +491,13 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
                 var _velocity = isDragging ? 0 : move( false );
                 spinning( _velocity, delta );
 
-                if ( !isDragging ) {
+                // if ( !isDragging ) {
 
-                    TWEEN.update();
-                    tween.onUpdate( function () {
-                        mesh.rotation.y += ( targets.targetRotationX - mesh.rotation.y ) * 0.05;
-                    } );
-                }
+                //     TWEEN.update();
+                //     tween.onUpdate( function () {
+                //         mesh.rotation.y += ( targets.targetRotationX - mesh.rotation.y ) * 0.05;
+                //     } );
+                // }
 
             } else {
                 move( delta );
@@ -504,6 +505,8 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         }
 
         requestAnimationFrame( loop );
+
+        controls.update();
 
         renderer.render( scene, camera );
     }
