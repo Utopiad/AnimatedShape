@@ -55,7 +55,6 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
     };
 
     var targets;
-    var tween = new TWEEN.Tween( targets );
 
     function createScene() {
         scene = new THREE.Scene();

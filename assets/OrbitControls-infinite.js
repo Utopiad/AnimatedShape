@@ -149,13 +149,13 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 			// restrict phi to be between desired limits
 			spherical.phi = Math.max( scope.minPolarAngle, Math.min( scope.maxPolarAngle, spherical.phi ) );
-			// if(spherical.phi == Math.PI){
-			// 	spherical.phi = 0;
-			// 	spherical.theta = spherical.theta*-1;
-			// }else if(spherical.phi == 0){
-			// 	spherical.phi = Math.PI;
-			// 	spherical.theta = spherical.theta*-1;
-			// }
+			if(spherical.phi == Math.PI){
+				spherical.phi = 0;
+				spherical.theta = spherical.theta*-1;
+			}else if(spherical.phi == 0){
+				spherical.phi = Math.PI;
+				spherical.theta = spherical.theta*-1;
+			}
 			
 			spherical.makeSafe();
 
