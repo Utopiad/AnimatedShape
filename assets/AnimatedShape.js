@@ -36,7 +36,8 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         mouseX,
         mouseY,
         renderHalfX,
-        renderHalfY;
+        renderHalfY,
+        Controls;
 
     var targetRotationX = 0;
     var targetRotationY = 0;
@@ -66,10 +67,14 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         camera.position.z = 50;
         camera.position.y = 0;
 
-        renderer = new THREE.WebGLRenderer( {
-            alpha: true,
-            antialias: true
-        } );
+        if ( Detector.webgl ) {
+            renderer = new THREE.WebGLRenderer( {
+                alpha: true,
+                antialias: true
+            } );
+        } else {
+            renderer = new THREE.CanvasRenderer();
+        }
 
         renderHalfX = container.clientWidth / 2;
         renderHalfY = container.clientHeight / 2;
@@ -82,6 +87,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         renderer.shadowCameraNear = 3;
         renderer.shadowCameraFar = camera.far;
         renderer.shadowCameraFov = 75;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
         renderer.shadowMapBias = 0.0039;
         renderer.shadowMapDarkness = 0.5;
@@ -90,11 +96,20 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
 
         controls = new THREE.OrbitControls( camera, renderer.domElement );
         controls.enableDamping = true;
-        controls.dampingFactor = .1;
+        controls.dampingFactor = .05;
         controls.enableZoom = false;
-        controls.rotateSpeed = 0.4;
+        controls.rotateSpeed = .1;
         controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.5;
+        controls.autoRotateSpeed = 0.2;
+        // controls = new THREE.TrackballControls( camera, renderer.domElement );
+        // controls.noPan = true;
+
+        Controls = function () {
+            this.dampingFactor = controls.dampingFactor;
+            this.rotateSpeed = controls.rotateSpeed;
+            this.autoRotateSpeed = controls.autoRotateSpeed;
+        };
+
 
         container.appendChild( renderer.domElement );
 
@@ -124,6 +139,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         lightGroup[ 0 ].castShadow = true;
         lightGroup[ 0 ].angle = .2;
         lightGroup[ 0 ].intensity = 0.25;
+        lightGroup[ 0 ].shadowMapDarkness = 0.9;
         lightGroup[ 0 ].lookAt( scene );
 
         camera.add( lightGroup[ 0 ] );
@@ -131,8 +147,12 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         lightGroup[ 1 ] = new THREE.DirectionalLight( 0xFFFFFF, 0.5 );
         lightGroup[ 1 ].position.set( camera.position.x, camera.position.y, camera.position.z );
         lightGroup[ 1 ].castShadow = true;
+        lightGroup[ 1 ].shadowMapDarkness = 0.9;
 
         camera.add( lightGroup[ 1 ] );
+
+        lightGroup[ 2 ] = new THREE.SpotLightShadow();
+
 
         Light = function () {
             this.color = lightGroup[ 0 ].color;
@@ -172,9 +192,7 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         backgroundMesh = new THREE.Mesh( backgroundGeom, backgroundMat );
         var vec = new THREE.Vector3( 0, 0, -79 );
         vec.applyQuaternion( camera.quaternion );
-
         backgroundMesh.position.copy( vec );
-        // backgroundMesh.position.set( 0, 0, -19 );
         backgroundMesh.rotation.x = -0.15;
         backgroundMesh.receiveShadow = true;
 
@@ -466,62 +484,62 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
         },
 
         lightController: function () {
-            var light = new Light();
+            // var light = new Light();
 
             var gui = new dat.GUI();
 
-            var MainLight = gui.addFolder( 'SpotLight' );
+            // var MainLight = gui.addFolder( 'SpotLight' );
 
-            MainLight.add( light, 'positionX', -100, 100 ).step( 1 ).onChange( function ( val ) {
-                lightGroup[ 0 ].position.x = val;
-            } );
-            MainLight.add( light, 'positionY', -100, 100 ).step( 1 ).onChange( function ( val ) {
-                lightGroup[ 0 ].position.y = val;
-            } );
-            MainLight.add( light, 'positionZ', -100, 100 ).step( 1 ).onChange( function ( val ) {
-                lightGroup[ 0 ].position.z = val;
-            } );
+            // MainLight.add( light, 'positionX', -100, 100 ).step( 1 ).onChange( function ( val ) {
+            //     lightGroup[ 0 ].position.x = val;
+            // } );
+            // MainLight.add( light, 'positionY', -100, 100 ).step( 1 ).onChange( function ( val ) {
+            //     lightGroup[ 0 ].position.y = val;
+            // } );
+            // MainLight.add( light, 'positionZ', -100, 100 ).step( 1 ).onChange( function ( val ) {
+            //     lightGroup[ 0 ].position.z = val;
+            // } );
 
-            MainLight.add( light, 'castShadow' ).onChange( function ( val ) {
-                lightGroup[ 0 ].castShadow = val;
-            } );
+            // MainLight.add( light, 'castShadow' ).onChange( function ( val ) {
+            //     lightGroup[ 0 ].castShadow = val;
+            // } );
 
-            MainLight.add( light, 'intensity', 0, 2 ).step( 0.01 ).onChange( function ( val ) {
-                lightGroup[ 0 ].intensity = val;
-            } );
+            // MainLight.add( light, 'intensity', 0, 2 ).step( 0.01 ).onChange( function ( val ) {
+            //     lightGroup[ 0 ].intensity = val;
+            // } );
 
-            MainLight.add( light, 'distance', 0, 200 ).step( 1 ).onChange( function ( val ) {
-                lightGroup[ 0 ].distance = val;
-            } );
+            // MainLight.add( light, 'distance', 0, 200 ).step( 1 ).onChange( function ( val ) {
+            //     lightGroup[ 0 ].distance = val;
+            // } );
 
-            MainLight.add( light, 'angle', 0, Math.PI / 2 ).step( 0.01 ).onChange( function ( val ) {
-                lightGroup[ 0 ].angle = val;
-            } );
+            // MainLight.add( light, 'angle', 0, Math.PI / 2 ).step( 0.01 ).onChange( function ( val ) {
+            //     lightGroup[ 0 ].angle = val;
+            // } );
 
-            MainLight.add( light, 'penumbra', 0, 1 ).step( 0.01 ).onChange( function ( val ) {
-                lightGroup[ 0 ].penumbra = val;
-            } );
+            // MainLight.add( light, 'penumbra', 0, 1 ).step( 0.01 ).onChange( function ( val ) {
+            //     lightGroup[ 0 ].penumbra = val;
+            // } );
 
-            MainLight.add( light, 'decay', 0, 1 ).step( 0.1 ).onChange( function ( val ) {
-                lightGroup[ 0 ].decay = val;
-            } );
+            // MainLight.add( light, 'decay', 0, 1 ).step( 0.1 ).onChange( function ( val ) {
+            //     lightGroup[ 0 ].decay = val;
+            // } );
 
-            var others = new DirectLight();
-            var OtherLights = gui.addFolder( 'Other Lights' );
+            // var others = new DirectLight();
+            // var OtherLights = gui.addFolder( 'Other Lights' );
 
-            OtherLights.add( others, 'positionX', -100, 100 ).step( 1 ).onChange( function ( val ) {
-                lightGroup[ 1 ].position.x = val;
-            } );
-            OtherLights.add( others, 'positionY', -100, 100 ).step( 1 ).onChange( function ( val ) {
-                lightGroup[ 1 ].position.y = val;
-            } );
-            OtherLights.add( others, 'positionZ', -100, 100 ).step( 1 ).onChange( function ( val ) {
-                lightGroup[ 1 ].position.z = val;
-            } );
+            // OtherLights.add( others, 'positionX', -100, 100 ).step( 1 ).onChange( function ( val ) {
+            //     lightGroup[ 1 ].position.x = val;
+            // } );
+            // OtherLights.add( others, 'positionY', -100, 100 ).step( 1 ).onChange( function ( val ) {
+            //     lightGroup[ 1 ].position.y = val;
+            // } );
+            // OtherLights.add( others, 'positionZ', -100, 100 ).step( 1 ).onChange( function ( val ) {
+            //     lightGroup[ 1 ].position.z = val;
+            // } );
 
-            OtherLights.add( others, 'intensity', 0, 1 ).step( .01 ).onChange( function ( val ) {
-                lightGroup[ 1 ].intensity = val;
-            } );
+            // OtherLights.add( others, 'intensity', 0, 1 ).step( .01 ).onChange( function ( val ) {
+            //     lightGroup[ 1 ].intensity = val;
+            // } );
 
             // OtherLights.add( others, 'positionXRight', -100, 100 ).step( 1 ).onChange( function ( val ) {
             //     lightGroup[3].position.x = val;
@@ -549,29 +567,43 @@ var AnimatedShape = function ( container, shape, timeSpan ) {
             //     lightGroup[ 2 ].intensity = val;
             // } );
 
-            OtherLights.open();
+            // OtherLights.open();
 
-            var geometry = new Material();
+            // var geometry = new Material();
 
-            var material = gui.addFolder( 'Material' );
+            // var material = gui.addFolder( 'Material' );
 
-            material.addColor( geometry, 'color' ).onChange( function ( colorValue ) {
-                mesh.material.color.set( colorValue );
-            } );
+            // material.addColor( geometry, 'color' ).onChange( function ( colorValue ) {
+            //     mesh.material.color.set( colorValue );
+            // } );
 
-            material.addColor( geometry, 'emissive' ).onChange( function ( colorValue ) {
-                mesh.material.emissive.set( colorValue );
-            } );
+            // material.addColor( geometry, 'emissive' ).onChange( function ( colorValue ) {
+            //     mesh.material.emissive.set( colorValue );
+            // } );
 
-            material.add( geometry, 'shininess', 0, 100 ).step( 1 ).onChange( function ( val ) {
-                mesh.material.shininess = val;
-            } );
+            // material.add( geometry, 'shininess', 0, 100 ).step( 1 ).onChange( function ( val ) {
+            //     mesh.material.shininess = val;
+            // } );
 
             // material.add( geometry, 'metalness', 0, 1.5 ).step( 0.01 ).onChange( function ( val ) {
             //     mesh.material.metalness = val;
             // } );
 
             // material.open();
+
+            var controller = new Controls();
+            var here = gui.addFolder( 'Controls' );
+            here.add( controller, 'dampingFactor', 0, 1 ).step( .01 ).onChange( function ( val ) {
+                controls.dampingFactor = val;
+            } );
+            here.add( controller, 'rotateSpeed', 0, 1 ).step( .01 ).onChange( function ( val ) {
+                controls.rotateSpeed = val;
+            } );
+            here.add( controller, 'autoRotateSpeed', 0, 1 ).step( .01 ).onChange( function ( val ) {
+                controls.autoRotateSpeed = val;
+            } );
+
+            here.open();
         }
     };
 };
