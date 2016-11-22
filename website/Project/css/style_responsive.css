@@ -1,0 +1,79 @@
+@media screen and (max-width: 1000px) {
+
+	/* ----------- CONTENT PR HOME ----------- */
+
+	.section-home_img
+	{
+		height: auto;
+		width: 100%;
+	}
+	.section-home_img img
+	{
+		height: auto;
+		width: 70%;
+	}
+
+	/* ----------- END CONTENT PR HOME ----------- */
+
+	
+	/* ----------- CONTENT PR TEXT ----------- */
+
+	#section-text
+	{
+		width: 90%;
+		margin: auto;
+		text-align: left;
+	}
+	#section-text .title
+	{
+		margin-top: 8px;
+	}
+	.section-text_content_2
+	{
+		padding: 0px;
+		margin-top: 28px;
+	}
+
+	/* ----------- END CONTENT PR TEXT ----------- */
+
+
+	/* ----------- SECTION INTERFACE ----------- */
+
+	#section-interface
+	{
+		width: 90%;
+		margin: auto;
+	}
+	.section-interface_li
+	{
+		text-align: left;
+	}
+	.section-interface_li_container_title .title
+	{
+		margin-top: 8px;
+	}
+	.section-interface_li_container_details
+	{
+		padding: 0px;
+		margin-top: 28px;
+		width: 100%;
+	}
+
+	/* ----------- END SECTION INTERFACE ----------- */
+
+}
+
+@media only screen 
+and (min-device-width : 375px) 
+and (max-device-width : 667px) 
+and (orientation : portrait) {
+/* iPhone 6 */ 
+
+}
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 568px) 
+and (orientation : portrait) {
+/* iPhone 5 */
+
+}

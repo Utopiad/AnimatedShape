@@ -156,7 +156,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 			// 	spherical.phi = Math.PI;
 			// 	spherical.theta = spherical.theta*-1;
 			// }
-			
+
 			spherical.makeSafe();
 
 
@@ -287,6 +287,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	function rotateLeft( angle ) {
 
 		sphericalDelta.theta -= angle;
+		sphericalDelta.phi -= angle/2;
 
 	}
 

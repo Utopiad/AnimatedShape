@@ -1,0 +1,32 @@
+@media screen and (max-width: 1200px) {
+	#nav-general
+	{
+		display: none;
+	}
+	.section-ext_container_avis
+	{
+		width: 100%;
+		padding-left: 50px;
+		padding-right: 50px;
+	}
+	.section-ext_container_avis .btn-nav.left
+	{
+		left: 10px;
+	}
+	.section-ext_container_avis .btn-nav.right
+	{
+		right: 10px;
+	}
+	.section-ext_container_avis .list-avis
+	{
+		height: 400px;
+	}
+	.section-ext_container_avis .avis .logo
+	{
+		margin-top: 20px;
+	}
+	.section-ext_container_avis .avis .text
+	{
+		font-size: 18px;
+	}
+}

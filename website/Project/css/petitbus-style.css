@@ -1,0 +1,181 @@
+@font-face {
+	font-family:petitbus-font;
+	src:url(../fonts/products-fonts/petitbus/BebasNeue.otf)
+}
+
+/* ANIMATION LOADER PETIT BUS */
+#container-general.petitbus .loader .title
+{
+	color:#16A9E5;
+}
+#container-general.petitbus .loader.anim .loader-content span:nth-child(1)
+{	
+	-webkit-transition-delay: 0s;
+	transition-delay: 0s;
+	-webkit-transform: translateY(0%);
+	   -moz-transform: translateY(0%);
+	    -ms-transform: translateY(0%);
+	     -o-transform: translateY(0%);
+	        transform: translateY(0%);
+}
+#container-general.petitbus .loader.anim .loader-content span:nth-child(2)
+{	
+	-webkit-transition-delay: 0.05s;
+	transition-delay: 0.05s;
+	-webkit-transform: translateY(0%);
+	   -moz-transform: translateY(0%);
+	    -ms-transform: translateY(0%);
+	     -o-transform: translateY(0%);
+	        transform: translateY(0%);
+}
+#container-general.petitbus .loader.anim .loader-content span:nth-child(3)
+{	
+	-webkit-transition-delay: 0.1s;
+	transition-delay: 0.1s;
+	-webkit-transform: translateY(0%);
+	   -moz-transform: translateY(0%);
+	    -ms-transform: translateY(0%);
+	     -o-transform: translateY(0%);
+	        transform: translateY(0%);
+}
+#container-general.petitbus .loader.anim .loader-content span:nth-child(4)
+{	
+	-webkit-transition-delay: 0.15s;
+	transition-delay: 0.15s;
+	-webkit-transform: translateY(0%);
+	   -moz-transform: translateY(0%);
+	    -ms-transform: translateY(0%);
+	     -o-transform: translateY(0%);
+	        transform: translateY(0%);
+}
+#container-general.petitbus .loader.anim .loader-content span:nth-child(5)
+{	
+	-webkit-transition-delay: 0.2s;
+	transition-delay: 0.2s;
+	-webkit-transform: translateY(0%);
+	   -moz-transform: translateY(0%);
+	    -ms-transform: translateY(0%);
+	     -o-transform: translateY(0%);
+	        transform: translateY(0%);
+}
+#container-general.petitbus .loader.anim .loader-content span:nth-child(6)
+{	
+	-webkit-transition-delay: 0.25s;
+	transition-delay: 0.25s;
+	-webkit-transform: translateY(0%);
+	   -moz-transform: translateY(0%);
+	    -ms-transform: translateY(0%);
+	     -o-transform: translateY(0%);
+	        transform: translateY(0%);
+}
+#container-general.petitbus .loader.anim .loader-content span:nth-child(7)
+{	
+	-webkit-transition-delay: 0.30s;
+	transition-delay: 0.30s;
+	-webkit-transform: translateY(0%);
+	   -moz-transform: translateY(0%);
+	    -ms-transform: translateY(0%);
+	     -o-transform: translateY(0%);
+	        transform: translateY(0%);
+}
+#container-general.petitbus .loader.anim .loader-content span:nth-child(8)
+{	
+	-webkit-transition-delay: 0.35s;
+	transition-delay: 0.35s;
+	-webkit-transform: translateY(0%);
+	   -moz-transform: translateY(0%);
+	    -ms-transform: translateY(0%);
+	     -o-transform: translateY(0%);
+	        transform: translateY(0%);
+}
+
+/* END ANIMATION LOADER PETIT BUS */
+
+/* PETIT BUS COLOR PROGRESS BAR */
+#container-general.petitbus .loader-content .progress-bar
+{
+	background-color:#16A9E5;
+}
+/* END PETIT BUS COLOR PROGRESS BAR */
+
+/* PETIT BUS COLOR TEXT */
+#container-general.petitbus #section-home h1
+{
+	font-weight: normal;
+	color: #16A9E5;
+	background: -webkit-gradient(linear, left center, right center, from(#16A9E5), to(#A2ABB2));
+	font-size: 27vw;
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	text-fill-color: transparent;
+}
+/* END PETIT BUS COLOR TEXT */
+
+/* PETIT BUS COLOR TEXT */
+#container-general.petitbus #section-text .title h2
+{
+	color:#16A9E5;
+	background: -webkit-gradient(linear, left center, right center, from(#16A9E5), to(#A2ABB2));
+	-webkit-background-clip: text;
+		background-clip: text;
+	-webkit-text-fill-color: transparent;
+		text-fill-color: transparent;
+}
+/* END PETIT BUS COLOR TEXT */
+
+/* PETIT BUS COLOR TEXT */
+#container-general.petitbus .section-interface_li_container_title .title h4
+{
+	color:#16A9E5;
+	background: -webkit-gradient(linear, left center, right center, from(#16A9E5), to(#A2ABB2));
+	-webkit-background-clip: text;
+		background-clip: text;
+	-webkit-text-fill-color: transparent;
+		text-fill-color: transparent;
+}
+/* END PETIT BUS COLOR TEXT */
+
+/* PETIT BUS FONT */
+#container-general.petitbus .section-interface_li_container_details .text-1
+{
+	font-family:petitbus-font;
+	font-size: 140px;
+	color: #464745;
+}
+#container-general.petitbus .section-interface_li_container_details .text-2
+{
+	font-family:petitbus-font;
+	font-size: 110px;
+	color: #9ea2a3;
+	word-wrap: break-word; 
+}
+#container-general.petitbus .section-interface_li_container_details .text-3
+{
+	color: #9ea2a3;
+	font-size: 16px;
+}
+/* END PETIT BUS FONT */
+
+/* PETIT BUS FONT */
+#container-general.petitbus .section-screenshot_container_img .col
+{
+	width: 25%;
+}
+/* END PETIT BUS FONT */
+
+
+
+
+
+@media screen and (max-width: 1000px) {
+	/* ----------- SECTION SCREENSHOT ----------- */
+
+	#container-general.petitbus .section-screenshot_container_img .col
+	{
+		width: 50%;
+	}
+
+	/* ----------- END SECTION SCREENSHOT ----------- */
+
+}

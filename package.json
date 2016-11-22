@@ -5,7 +5,8 @@
   "main": "AnimatedShape.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "cat assets/three.min.js assets/zepto.min.js assets/AnimatedShape.js assets/script.js > bundle.js"
+    "build:three": "cat assets/Detector.js assets/three.min.js assets/CanvasRenderer.js assets/OrbitControls-infinite.js > ThreeBundle.js",
+    "build:animated": "cat assets/AnimatedShape.js > AnimatedShape.js"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+
+		<title>AgenceMe</title>
+
+	    <meta charset="utf-8" />
+
+	    <SCRIPT LANGUAGE="JavaScript" TYPE="text/javascript">
+
+		if (navigator.appName == 'Netscape')
+		    var language = navigator.language;
+		else
+		    var language = navigator.browserLanguage;
+
+		var code = language.substring(0,2);
+		
+		if (code == 'fr') url ="index_FR.php";
+		else url ="index_EN.php";
+
+		document.location.href = url
+
+		</SCRIPT>
+
+	</head>
+	
+</html>
