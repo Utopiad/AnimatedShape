@@ -121,10 +121,20 @@ var AnimatedShape = function ( container, shape ) {
         } );
 
         switch ( shape ) {
-        case 'icosahedron':
+          case 'icosahedron':
             var geometry = getIcosahedron();
             break;
+          case 'cube':
+            var geometry = getCube();
+            break;
+          case 'tetrahedron':
+            var geometry = getTetrahedron();
+            break;
+          case 'octahedron':
+            var geometry = getOctahedron();
+            break;
         }
+
 
         mesh = new THREE.Mesh( geometry, material );
 
@@ -137,6 +147,18 @@ var AnimatedShape = function ( container, shape ) {
 
     function getIcosahedron() {
         return new THREE.IcosahedronGeometry( 15 );
+    }
+
+    function getCube() {
+      return new THREE.BoxGeometry( 15, 15, 15 );
+    }
+
+    function getTetrahedron() {
+      return new THREE.TetrahedronGeometry(15);
+    }
+
+    function getOctahedron() {
+      return new THREE.OctahedronGeometry(15);
     }
 
     function getAmountAway() {

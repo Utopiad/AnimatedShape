@@ -14,7 +14,7 @@ $(window).on('load', function() {
     });
 
     var windowHeight = $(window).height()/2;
-    
+
 
     /* SCROLL CLASS ANIMATION */
 
@@ -44,7 +44,7 @@ $(window).on('load', function() {
             if (!$containerGeneral.hasClass('anim-thumb-chauffeur-prive')) {
 
               $containerGeneral.addClass('anim-thumb-chauffeur-prive');
-              
+
             }
 
             /* $('#position-icosahedron').addClass('min'); */
@@ -56,7 +56,7 @@ $(window).on('load', function() {
             if (!$containerGeneral.hasClass('anim-thumb-thoughtspot')) {
 
               $containerGeneral.addClass('anim-thumb-thoughtspot');
-              
+
             }
 
         }
@@ -66,7 +66,7 @@ $(window).on('load', function() {
             if (!$containerGeneral.hasClass('anim-thumb-orange')) {
 
               $containerGeneral.addClass('anim-thumb-orange');
-              
+
             }
 
         }
@@ -203,7 +203,7 @@ $(window).on('load', function() {
           }, 1500);
 
         };
-            
+
       });
 
       $('.section-ext_container_avis .btn-nav.right').click();
@@ -213,13 +213,10 @@ $(window).on('load', function() {
 
     /* ICOSAHEDRON */
 
-    var icosahedron = new AnimatedShape( 'animatedshape', 'icosahedron', 3000 );
+    var icosahedron = new AnimatedShape( 'animatedshape', 'octahedron', 3000 );
     icosahedron.init();
 
     /* END ICOSAHEDRON */
 
 
   });
-
-
-
